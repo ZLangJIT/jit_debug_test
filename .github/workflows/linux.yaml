@@ -61,16 +61,15 @@ jobs:
         uses: jirutka/setup-alpine@v1
         with:
           shell-name: alpine.sh
+          packages: sudo
           
       - name: install llvm
-        shell: alpine.sh --root {0}
         run: |
           whoami
-          apk add lldb clang18 llvm18 cmake make sudo
+          sudo whoi
+          sudo apk add lldb clang18 llvm18 cmake make
           
           
       - name: build test
         run: |
-          whoami
-          sudo -i whoami
           make || exit
