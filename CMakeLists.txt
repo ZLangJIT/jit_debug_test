@@ -20,10 +20,10 @@ add_executable(jit jit.cpp main.cpp)
 
 # Find the libraries that correspond to the LLVM components
 # that we wish to use
-llvm_map_components_to_libnames(llvm_libs support core irreader)
+# llvm_map_components_to_libnames(llvm_libs support core irreader)
 
 # Link against LLVM libraries
-target_link_libraries(jit ${llvm_libs})
+target_link_libraries(jit ${LLVM_AVAILABLE_LIBS})
 
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
 set(INSTALL_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE PATH "Installation directory for libraries")

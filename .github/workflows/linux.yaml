@@ -90,3 +90,6 @@ jobs:
       - name: cmake build - Debug - Install
         run: |
           cmake --install BUILD_DEBUG
+          find ROOTFS_DEBUG
+          ls -l ROOTFS_DEBUG
+          ls -l ROOTFS_DEBUG/bin
