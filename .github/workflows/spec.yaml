@@ -99,8 +99,8 @@ jobs:
         include:
           - os: macos-latest
             name: macos latest (Intel)
-          - os: macos-11
-            name: macos 11 (Intel)
+         # - os: macos-11    hangs forever
+         #   name: macos 11 (Intel)
           - os: macos-12
             name: macos 12 (Intel)
           - os: macos-13
