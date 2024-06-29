@@ -67,7 +67,7 @@ jobs:
         run: |
           sudo apk update
           sudo apk upgrade
-          sudo apk add git gcc g++ make cmake ninja python3 automake autoconf linux-headers
+          sudo apk add git gcc g++ make cmake ninja python3 automake autoconf linux-headers curl
 
       - name: check if split program is cached
         run: |
@@ -170,7 +170,7 @@ jobs:
           sudo whoami
           sudo apk update
           sudo apk upgrade
-          sudo apk add git lldb lldb-dev clang18 clang18-dev clang18-static llvm18 llvm18-dev llvm18-static llvm18-gtest cmake make libxml2 libxml2-dev libxml2-static
+          sudo apk add git lldb lldb-dev clang18 clang18-dev clang18-static llvm18 llvm18-dev llvm18-static llvm18-gtest cmake make libxml2 libxml2-dev libxml2-static curl
           
       - name: check if split program is cached
         run: |
