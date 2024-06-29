@@ -67,14 +67,14 @@ jobs:
         run: |
           sudo apk update
           sudo apk upgrade
-          sudo apk add git gcc g++ make cmake ninja python3 automake autoconf linux-headers curl
+          sudo apk add bash git gcc g++ make cmake ninja python3 automake autoconf linux-headers curl
 
       - name: check if split program is cached
         run: |
           git clone --recursive https://github.com/mgood7123/split
           cd split
           chmod +x ../try_get_release.sh
-          ../try_get_release.sh   ZLangJIT   jit_test_debug   storage--split--alpine   split_build.tar || true
+          bash -c "../try_get_release.sh   ZLangJIT   jit_test_debug   storage--split--alpine   split_build.tar || true"
 
       - name: build split program
         run: |
@@ -170,12 +170,12 @@ jobs:
           sudo whoami
           sudo apk update
           sudo apk upgrade
-          sudo apk add git lldb lldb-dev clang18 clang18-dev clang18-static llvm18 llvm18-dev llvm18-static llvm18-gtest cmake make libxml2 libxml2-dev libxml2-static curl
+          sudo apk add bash git lldb lldb-dev clang18 clang18-dev clang18-static llvm18 llvm18-dev llvm18-static llvm18-gtest cmake make libxml2 libxml2-dev libxml2-static curl
           
       - name: check if split program is cached
         run: |
           chmod +x ./try_get_release.sh
-          ./try_get_release.sh   ZLangJIT   jit_test_debug   storage--split--alpine   split.exe.tar
+          bash -c "./try_get_release.sh   ZLangJIT   jit_test_debug   storage--split--alpine   split.exe.tar"
           
       - name: list libs
         run: |
