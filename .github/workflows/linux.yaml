@@ -63,7 +63,14 @@ jobs:
           shell-name: alpine.sh
           
       - name: install llvm
+        shell: alpine.sh --root {0}
         run: |
           whoami
-          sudo apk add lldb-18 clang-18 llvm-18 cmake make
-        
+          apk add lldb-18 clang-18 llvm-18 cmake make sudo
+          
+          
+      - name: build test
+        run: |
+          whoami
+          sudo whoami
+          make
