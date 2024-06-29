@@ -69,10 +69,24 @@ jobs:
           sudo whoami
           sudo apk update
           sudo apk upgrade
-          sudo apk add lldb clang18 llvm18 cmake make
+          sudo apk add lldb lldb-dev clang18 clang18-dev clang18-static llvm18 llvm18-dev llvm18-static cmake make
           
-          
-      - name: build test
+      - name: list libs
         run: |
-          chmod +x build.sh
-          ./build.sh
+          set -v
+          ls /lib
+          ls /usr/lib
+          
+      - name: cmake build - Debug - Generate
+        run: |
+          mkdir BUILD_DEBUG
+          mkdir ROOTFS_DEBUG
+          cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
+
+      - name: cmake build - Debug - Build
+        run: |
+          cmake --build BUILD_DEBUG
+
+      - name: cmake build - Debug - Install
+        run: |
+          cmake --install BUILD_DEBUG
