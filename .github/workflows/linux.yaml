@@ -206,7 +206,7 @@ jobs:
         run: |
           # 500 mb
           #
-          ./split/split --split -r ROOTFS_DEBUG --name ROOTFS_DEBUG --size $((1024*1024*500))
+          ./split_exe/split --split -r ROOTFS_DEBUG --name ROOTFS_DEBUG --size $((1024*1024*500))
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
