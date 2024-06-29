@@ -1,0 +1,71 @@
+# Job execution time - Each job in a workflow can run for up to 6 hours of execution time.
+# Workflow run time - Each workflow run is limited to 35 days
+
+name: linux
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: alpine-x86_64.sh
+
+jobs:
+  should_run:
+    if: false
+    runs-on: ubuntu-latest
+    name: should_i_run
+    outputs:
+      output1: ${{ steps.check.outputs.target_commit_id }}
+    steps:
+     - name: check
+       shell: bash
+       run: |
+         wget https://gist.github.com/mgood7123/47957c59a4b0cbda11875632ee0b8f15/raw/7e876a60f2735cf7e60150a9a29edf6ddaad20a8/check.cpp -O check.cpp
+         cat << EOF > data.json
+         ${{toJSON(github.event.commits.*)}}
+         EOF
+         cat -n data.json
+         git clone https://github.com/danielaparker/jsoncons --depth=1
+         g++ --std=c++17 -I jsoncons/include check.cpp -o check
+         ./check 3 >> "$GITHUB_OUTPUT" # check for android [1] windows [2] linux [3] macos [4]
+  
+  test:
+    needs: should_run
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: linux
+
+    runs-on: ${{ matrix.os }}
+
+    name: deps - ${{ matrix.name }}
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          submodules: recursive
+          
+      - name: Setup latest Alpine Linux
+        uses: jirutka/setup-alpine@v1
+        with:
+          shell-name: alpine-x86_64.sh
+          
+      - name: install llvm
+        run: |
+          pwd
+          ls -l
+          ls -l /home/runner/work
+          apk add lldb-18 clang-18 llvm-18 cmake make
+        
