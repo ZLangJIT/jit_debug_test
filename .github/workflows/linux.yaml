@@ -43,12 +43,12 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: windows-latest
-            name: windows
+          - os: ubuntu-latest
+            name: linux
 
     runs-on: ${{ matrix.os }}
 
-    name: msys2 split - ${{ matrix.name }}
+    name: split - ${{ matrix.name }}
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
