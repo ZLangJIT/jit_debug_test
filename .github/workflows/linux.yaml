@@ -65,7 +65,6 @@ jobs:
       - name: install llvm
         run: |
           pwd
-          ls -l
-          ls -l /home/runner/work
-          apk add lldb-18 clang-18 llvm-18 cmake make
+          find
+          sudo apk add lldb-18 clang-18 llvm-18 cmake make
         
