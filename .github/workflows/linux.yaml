@@ -72,5 +72,5 @@ jobs:
       - name: build test
         run: |
           whoami
-          sudo whoami
-          make
+          sudo -i whoami
+          make || exit
