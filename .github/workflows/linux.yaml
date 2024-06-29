@@ -74,7 +74,7 @@ jobs:
           git clone --recursive https://github.com/mgood7123/split
           cd split
           chmod +x ../try_get_release.sh
-          bash -c "../try_get_release.sh   ZLangJIT   jit_test_debug   storage--split--alpine   split_build.tar || true"
+          bash -c "../try_get_release.sh   ZLangJIT   jit_debug_test   storage--split--alpine   split_build.tar || true"
 
       - name: build split program
         run: |
@@ -175,7 +175,7 @@ jobs:
       - name: check if split program is cached
         run: |
           chmod +x ./try_get_release.sh
-          bash -c "./try_get_release.sh   ZLangJIT   jit_test_debug   storage--split--alpine   split.exe.tar || true"
+          bash -c "./try_get_release.sh   ZLangJIT   jit_debug_test   storage--split--alpine   split.exe.tar || true"
           
       - name: list libs
         run: |
