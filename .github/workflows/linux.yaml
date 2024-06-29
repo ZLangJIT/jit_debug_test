@@ -67,7 +67,7 @@ jobs:
         run: |
           sudo apk update
           sudo apk upgrade
-          apk add git gcc g++ make cmake ninja python autotools
+          sudo apk add git gcc g++ make cmake ninja python autotools
 
       - name: check if split program is cached
         run: |
