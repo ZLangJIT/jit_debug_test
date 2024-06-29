@@ -31,9 +31,109 @@ jobs:
          git clone https://github.com/danielaparker/jsoncons --depth=1
          g++ --std=c++17 -I jsoncons/include check.cpp -o check
          ./check 3 >> "$GITHUB_OUTPUT" # check for android [1] windows [2] linux [3] macos [4]
-  
-  test:
+
+  build_split:
     needs: should_run
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+
+    runs-on: ${{ matrix.os }}
+
+    name: msys2 split - ${{ matrix.name }}
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          submodules: recursive
+          
+      - name: Setup latest Alpine Linux
+        uses: jirutka/setup-alpine@v1
+        with:
+          shell-name: alpine.sh
+          packages: sudo
+
+      - name: install packages
+        run: |
+          sudo apk update
+          sudo apk upgrade
+          apk add git gcc g++ make cmake ninja python autotools
+
+      - name: check if split program is cached
+        run: |
+          cd split
+          chmod +x ../try_get_release.sh
+          ../try_get_release.sh   ZLangJIT   jit_test_debug   storage--split--alpine   split_build.tar || true
+
+      - name: build split program
+        run: |
+          export CMAKE_BUILD_PARALLEL_LEVEL=$(nproc)
+          chmod +x try_get_release.sh
+          cd split
+          chmod +x make.sh
+          ./make.sh
+
+      - name: archive split build directory
+        run: |
+          cd split
+          # we need only the rootfs in the next stage
+          mv BUILD_DEBUG/BUILD_ROOT/ROOTFS .
+          tar -cf split_build.tar BUILD_DEBUG
+          sha512sum split_build.tar > split_build.tar.sha512
+          rm -rf BUILD_DEBUG
+          # preserve the directory structure
+          mkdir BUILD_DEBUG
+          mkdir BUILD_DEBUG/BUILD_ROOT
+          mv ROOTFS BUILD_DEBUG/BUILD_ROOT
+          tar -cf split_rootfs.tar BUILD_DEBUG
+          sha512sum split_rootfs.tar > split_rootfs.tar.sha512
+          cd ..
+          mkdir split_exe
+          cp split/BUILD_DEBUG/BUILD_ROOT/ROOTFS/bin/split split_exe
+          tar -cf split.exe.tar split_exe
+          sha512sum split.exe.tar > split.exe.tar.sha512
+          rm -rf split/BUILD_DEBUG
+          rm -rf split_exe
+          tar -xf split.exe.tar
+          echo "checking if packaged split works"
+          ./split_exe/split
+          echo "packaged split works"
+
+      - name: list files
+        run: |
+          ls -l
+      
+      - name: upload split build directory
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "split"
+          tag: "storage--split--alpine"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./split/split_build.tar
+            ./split/split_build.tar.sha512
+            ./split/split_rootfs.tar
+            ./split/split_rootfs.tar.sha512
+            ./split.exe.tar
+            ./split.exe.tar.sha512
+  test:
+    needs: build_split
     # so we can upload releases
     permissions:
       contents: write
@@ -48,7 +148,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
 
-    name: deps - ${{ matrix.name }}
+    name: test - ${{ matrix.name }}
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -63,13 +163,19 @@ jobs:
           shell-name: alpine.sh
           packages: sudo
           
+
       - name: install llvm
         run: |
           whoami
           sudo whoami
           sudo apk update
           sudo apk upgrade
-          sudo apk add lldb lldb-dev clang18 clang18-dev clang18-static llvm18 llvm18-dev llvm18-static llvm18-gtest cmake make libxml2 libxml2-dev libxml2-static
+          sudo apk add git lldb lldb-dev clang18 clang18-dev clang18-static llvm18 llvm18-dev llvm18-static llvm18-gtest cmake make libxml2 libxml2-dev libxml2-static
+          
+      - name: check if split program is cached
+        run: |
+          chmod +x ./try_get_release.sh
+          ./try_get_release.sh   ZLangJIT   jit_test_debug   storage--split--alpine   split.exe.tar
           
       - name: list libs
         run: |
@@ -92,4 +198,32 @@ jobs:
           cmake --install BUILD_DEBUG
           find ROOTFS_DEBUG
           ls -l ROOTFS_DEBUG
+          ls -lh ROOTFS_DEBUG
           ls -l ROOTFS_DEBUG/bin
+          ls -lh ROOTFS_DEBUG/bin
+          
+      - name: archive rootfs
+        run: |
+          # 500 mb
+          #
+          ./split/split --split -r ROOTFS_DEBUG --name ROOTFS_DEBUG --size $((1024*1024*500))
+
+      - name: list files
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+
+      - name: upload rootfs
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "alpine - jit test - Debug"
+          tag: "storage--alpine-jit_test--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./ROOTFS_DEBUG.split.*
