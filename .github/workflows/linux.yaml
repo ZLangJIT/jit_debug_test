@@ -66,7 +66,7 @@ jobs:
         shell: alpine.sh --root {0}
         run: |
           whoami
-          apk add lldb-18 clang-18 llvm-18 cmake make sudo
+          apk add lldb18 clang18 llvm18 cmake make sudo
           
           
       - name: build test
