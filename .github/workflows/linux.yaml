@@ -10,7 +10,7 @@ on:
 
 defaults:
   run:
-    shell: alpine-x86_64.sh
+    shell: alpine.sh
 
 jobs:
   should_run:
@@ -60,7 +60,7 @@ jobs:
       - name: Setup latest Alpine Linux
         uses: jirutka/setup-alpine@v1
         with:
-          shell-name: alpine-x86_64.sh
+          shell-name: alpine.sh
           
       - name: install llvm
         run: |
