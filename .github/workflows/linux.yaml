@@ -14,7 +14,7 @@ defaults:
 
 jobs:
   should_run:
-    if: false
+    if: true
     runs-on: ubuntu-latest
     name: should_i_run
     outputs:
