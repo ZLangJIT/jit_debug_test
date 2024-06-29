@@ -51,7 +51,7 @@ jobs:
       - name: install procps
         shell: msys2 {0}
         run: |
-          pacboy -S --noconfirm --needed procps-ng
+          pacman -S --noconfirm --needed procps-ng
 
       - name: check free memory
         shell: msys2 {0}
