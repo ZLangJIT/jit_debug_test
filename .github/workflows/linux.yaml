@@ -67,6 +67,8 @@ jobs:
         run: |
           whoami
           sudo whoami
+          sudo apk update
+          sudo apk upgrade
           sudo apk add lldb clang18 llvm18 cmake make
           
           
