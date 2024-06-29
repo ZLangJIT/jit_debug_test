@@ -69,7 +69,7 @@ jobs:
           sudo whoami
           sudo apk update
           sudo apk upgrade
-          sudo apk add lldb lldb-dev clang18 clang18-dev clang18-static llvm18 llvm18-dev llvm18-static cmake make
+          sudo apk add lldb lldb-dev clang18 clang18-dev clang18-static llvm18 llvm18-dev llvm18-static llvm18-gtest cmake make libxml2 libxml2-dev libxml2-static
           
       - name: list libs
         run: |
