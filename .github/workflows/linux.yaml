@@ -72,4 +72,5 @@ jobs:
           
       - name: build test
         run: |
+          chmod +x build.sh
           ./build.sh
