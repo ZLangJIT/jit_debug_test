@@ -202,6 +202,11 @@ jobs:
           ls -l ROOTFS_DEBUG/bin
           ls -lh ROOTFS_DEBUG/bin
           
+      - name: test
+        run: |
+          ./ROOTFS_DEBUG/bin/jit
+          lldb ROOTFS_DEBUG/bin/jit -s j.lldb --source-on-crash j.lldberr
+          
       - name: archive rootfs
         run: |
           # 500 mb
