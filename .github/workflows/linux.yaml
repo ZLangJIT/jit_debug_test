@@ -72,4 +72,4 @@ jobs:
           
       - name: build test
         run: |
-          make || true
+          ./build.sh
