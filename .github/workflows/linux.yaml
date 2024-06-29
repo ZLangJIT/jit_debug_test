@@ -10,7 +10,7 @@ on:
 
 defaults:
   run:
-    shell: alpine.sh
+    shell: alpine.sh {0}
 
 jobs:
   should_run:
