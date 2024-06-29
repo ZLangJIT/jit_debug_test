@@ -6,6 +6,7 @@
 FILE=$4
 TAG=$3
 URL=https://github.com/$1/$2/releases/download/$TAG/$FILE
+echo "checking URL: $URL"
 R=$(curl --silent -I $URL | grep -E "^HTTP" | awk -F " " '{print $2}')
 RSHA=$(curl --silent -I $URL.sha512 | grep -E "^HTTP" | awk -F " " '{print $2}')
 if [[ ("$R" == "200" || "$R" == "302") && ("$RSHA" == "200" || "$RSHA" == "302") ]]
@@ -30,6 +31,7 @@ if [[ ("$R" == "200" || "$R" == "302") && ("$RSHA" == "200" || "$RSHA" == "302")
                 exit -1
         fi
     else
+        echo "URL OR SHA DOES NOT EXIST"
         echo 'build directory does not exist in cache'
         mkdir BUILD_DEBUG || true
         exit -2
