@@ -71,7 +71,7 @@ jobs:
 
       - name: check if split program is cached
         run: |
-          git clone --recursive https://github.com/mgood7123/split
+          git clone --recursive https://github.com/ZLangJIT/split
           cd split
           chmod +x ../try_get_release.sh
           bash -c "../try_get_release.sh   ZLangJIT   jit_debug_test   storage--split--alpine   split_build.tar || true"
