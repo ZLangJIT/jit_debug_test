@@ -120,7 +120,7 @@ jobs:
             ./split.exe.tar
             ./split.exe.tar.sha512
 
-test:
+  test:
     needs: build_split
     # so we can upload releases
     permissions:
