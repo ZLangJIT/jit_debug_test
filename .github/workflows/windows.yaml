@@ -119,3 +119,103 @@ jobs:
             ./split/split_rootfs.tar.sha512
             ./split.exe.tar
             ./split.exe.tar.sha512
+
+test:
+    needs: build_split
+    # so we can upload releases
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+      cancel-in-progress: true
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: windows
+
+    runs-on: ${{ matrix.os }}
+
+    name: test - ${{ matrix.name }}
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{needs.should_run.outputs.output1}}
+          submodules: recursive
+
+      - name: download llvm
+        run: |
+          wget "https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-pc-windows-msvc.tar.xz"
+
+      - name: extract llvm
+        run: |
+          tar -xf clang+llvm-18.1.8-x86_64-pc-windows-msvc.tar.xz
+
+      - name: list files llvm
+        run: |
+          ls -l
+          find .
+
+      - name: check if split program is cached
+        run: |
+          chmod +x ./try_get_release.sh
+          bash -c "./try_get_release.sh   ZLangJIT   jit_debug_test   storage--split--alpine   split.exe.tar || true"
+          bash -c "./try_get_release.sh   ZLangJIT   jit_debug_test   storage--split--alpine   split.exe.tar || true"
+          
+      - name: list libs
+        run: |
+          set -v
+          ls /lib
+          ls /usr/lib
+          
+      - name: cmake build - Debug - Generate
+        run: |
+          mkdir BUILD_DEBUG
+          mkdir ROOTFS_DEBUG
+          cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
+
+      - name: cmake build - Debug - Build
+        run: |
+          cmake --build BUILD_DEBUG
+
+      - name: cmake build - Debug - Install
+        run: |
+          cmake --install BUILD_DEBUG
+          find ROOTFS_DEBUG
+          ls -l ROOTFS_DEBUG
+          ls -lh ROOTFS_DEBUG
+          ls -l ROOTFS_DEBUG/bin
+          ls -lh ROOTFS_DEBUG/bin
+          
+      - name: test
+        run: |
+          ./ROOTFS_DEBUG/bin/jit
+          lldb ROOTFS_DEBUG/bin/jit -s j.lldb --source-on-crash j.lldberr
+          
+      - name: archive rootfs
+        run: |
+          # 500 mb
+          #
+          ./split_exe/split --split -r ROOTFS_DEBUG --name ROOTFS_DEBUG --size $((1024*1024*500))
+
+      - name: list files
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        run: |
+          ls -l
+
+      - name: upload rootfs
+        if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
+        uses: "ncipollo/release-action@v1"
+        with:
+          name: "alpine - jit test - Debug"
+          tag: "storage--alpine-jit_test--release"
+          makeLatest: true
+          generateReleaseNotes: false
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true
+          removeArtifacts: true
+          artifacts: |
+            ./ROOTFS_DEBUG.split.*
