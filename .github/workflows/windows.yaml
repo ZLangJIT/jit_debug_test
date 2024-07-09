@@ -149,6 +149,10 @@ jobs:
 
       - name: download llvm
         run: |
+          set -v
+          winget search wget
+          winget search llvm
+          winget install wget
           wget "https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-pc-windows-msvc.tar.xz"
 
       - name: extract llvm
