@@ -54,16 +54,6 @@ JIT::main_llvm_init::main_llvm_init(int argc, const char *argv[]) {
 
 // https://github.com/NVIDIA/warp/blob/main/warp/native/clang/clang.cpp
 
-#if defined (_WIN32)
-	// Windows defaults to using the COFF binary format (aka. "msvc" in the target triple).
-	// Override it to use the ELF format to support DWARF debug info, but keep using the
-	// Microsoft calling convention (see also https://llvm.org/docs/DebuggingJITedCode.html).
-	static const char* target_triple = "x86_64-pc-windows-elf";
-#else
-	static const char* target_triple = LLVM_DEFAULT_TARGET_TRIPLE;
-#endif
-
-
 extern "C" {
 
 // GDB and LLDB support debugging of JIT-compiled code by observing calls to __jit_debug_register_code()
