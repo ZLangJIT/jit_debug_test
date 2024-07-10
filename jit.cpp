@@ -130,6 +130,33 @@ void JIT::add_IR_module(llvm::StringRef file_name) {
         Err.print("JIT IR Read error", llvm::errs());
         return;
     }
+    
+    auto JTMB = llvm::orc::JITTargetMachineBuilder(llvm::Triple(target_triple));
+    
+    // Retrieve host CPU name and sub-target features and add them to builder.
+    // codegen opt level are kept to default values.
+    llvm::StringMap<bool> FeatureMap;
+    llvm::sys::getHostCPUFeatures(FeatureMap);
+    for (auto &Feature : FeatureMap)
+        JTMB.getFeatures().AddFeature(Feature.first(), Feature.second);
+ 
+    JTMB.setCPU(std::string(llvm::sys::getHostCPUName()));
+    
+    // Position Independent Code(
+    JTMB.setRelocationModel(llvm::Reloc::PIC_);
+    
+    // Don't make assumptions about displacement sizes
+    JTMB.setCodeModel(llvm::CodeModel::Large);
+    
+    auto expected = JTMB.createTargetMachine();
+    
+    if (!expected) {
+      Err.print("JIT IR createTargetMachine error", llvm::errs());
+        return;
+    }
+    
+    M->setDataLayout((*expected)->createDataLayout());
+    
     add_IR_module(std::move(llvm::orc::ThreadSafeModule(std::move(M), std::move(Ctx))));
 }
 
