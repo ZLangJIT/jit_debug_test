@@ -133,7 +133,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: windows-latest
+          - os: windows-2019
             name: windows
 
     runs-on: ${{ matrix.os }}
@@ -156,10 +156,21 @@ jobs:
           tar -xf clang+llvm-18.1.8-x86_64-pc-windows-msvc.tar.xz
           mv clang+llvm-18.1.8-x86_64-pc-windows-msvc llvm-18
 
+      - name: install DIA SDK
+        run: |
+          ls -l "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional" || echo "vs 2019 enterprise not installed"
+          ls -l "C:/Program Files (x86)/Microsoft Visual Studio/2022/Professional" || echo "vs 2022 enterprise not installed"
+          mkdir -p "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK" || true
+          git clone https://github.com/RudjiGames/DIA "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK"
+          mv "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/x64" "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
+
       - name: list files llvm
         run: |
+          set -x
           ls -l
-          find llvm-18
+          ls -l llvm-18
+          ls -l llvm-18/bin
+          ls -l llvm-18/lib
 
       - name: check if split program is cached
         run: |
@@ -171,7 +182,7 @@ jobs:
           mkdir BUILD_DEBUG
           mkdir ROOTFS_DEBUG
           export PATH="$(pwd)/llvm-18/bin:$PATH"
-          cmake -DCMAKE_PREFIX_PATH="$(pwd)/llvm-18/lib/cmake" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0 -DLIBXML_STATIC" -DCMAKE_CXX_FLAGS="-g3 -O0 -DLIBXML_STATIC" -DLIBXML2_INCLUDE_DIR="$(pwd)/win32-libxml2/include" -DLIBXML2_LIBRARY="$(pwd)/win32-libxml2/lib/libxml2.a" -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
+          cmake -DCMAKE_PREFIX_PATH="$(pwd)/llvm-18/lib/cmake" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0 -DLIBXML_STATIC" -DCMAKE_CXX_FLAGS="-g3 -O0 -DLIBXML_STATIC" -DLIBXML2_INCLUDE_DIR="$(pwd)/win32-libxml2/include" -DLIBXML2_LIBRARY="$(pwd)/win32-libxml2/lib/libxml2.lib:$(pwd)/win32-libxml2/lib/libxml2-bcc.lib" -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
 
       - name: cmake build - Debug - Build
         run: |
@@ -181,6 +192,7 @@ jobs:
       - name: cmake build - Debug - Install
         run: |
           export PATH="$(pwd)/llvm-18/bin:$PATH"
+          set -x
           cmake --install BUILD_DEBUG
           find ROOTFS_DEBUG
           ls -l ROOTFS_DEBUG
@@ -191,6 +203,7 @@ jobs:
       - name: test
         run: |
           export PATH="$(pwd)/llvm-18/bin:$PATH"
+          set -x
           ./ROOTFS_DEBUG/bin/jit
           lldb ROOTFS_DEBUG/bin/jit -s j.lldb --source-on-crash j.lldberr
           

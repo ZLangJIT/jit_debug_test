@@ -26,6 +26,11 @@ jobs:
     name: spec test - ${{ matrix.name }}
 
     steps:
+      - name: check vs
+        run: |
+          ls -l "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional" || echo "vs 2019 enterprise not installed"
+          ls -l "C:/Program Files (x86)/Microsoft Visual Studio/2022/Professional" || echo "vs 2022 enterprise not installed"
+
       - name: '${{ matrix.icon }} Setup MSYS2'
         uses: msys2/setup-msys2@v2
         with:
