@@ -211,10 +211,10 @@ jobs:
           curl -L "https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-pc-windows-msvc.tar.xz" -O
           tar -xf clang+llvm-18.1.8-x86_64-pc-windows-msvc.tar.xz
           mv clang+llvm-18.1.8-x86_64-pc-windows-msvc llvm
-          llvm/bin/lldb --help
-          llvm-18/bin/lldb --help
+          llvm/bin/lldb --help || echo "lldb exited with code $?"
+          llvm-18/bin/lldb --help || echo "lldb exited with code $?"
           export PATH="$(pwd)/llvm-18/bin:$PATH"
-          lldb --help
+          lldb --help || echo "lldb exited with code $?"
           cat j.lldb
           cat j.lldberr
           cat split.lldb
