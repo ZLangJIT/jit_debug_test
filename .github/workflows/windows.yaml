@@ -213,13 +213,13 @@ jobs:
           cat j.lldberr
           cat split.lldb
           ./ROOTFS_DEBUG/bin/jit
-          lldb ROOTFS_DEBUG/bin/jit -s j.lldb --source-on-crash j.lldberr
+          lldb ROOTFS_DEBUG/bin/jit.exe -s j.lldb --source-on-crash j.lldberr
           
       - name: archive rootfs
         run: |
           # 500 mb
           #
-          lldb ./split_exe/split -s split.lldb --source-on-crash j.lldberr -- --split -r ROOTFS_DEBUG --name ROOTFS_DEBUG --size $((1024*1024*500))
+          lldb ./split_exe/split.exe -s split.lldb --source-on-crash j.lldberr -- --split -r ROOTFS_DEBUG --name ROOTFS_DEBUG --size $((1024*1024*500))
 
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
