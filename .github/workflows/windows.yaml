@@ -168,6 +168,9 @@ jobs:
         run: |
           set -x
           ls -l
+          find win32-libxml2
+          ls -l win32-libxml2/lib/libxml2.lib || true
+          ls -l win32-libxml2/lib/libxml2-bcc.lib || true
           ls -l llvm-18
           ls -l llvm-18/bin
           ls -l llvm-18/lib
