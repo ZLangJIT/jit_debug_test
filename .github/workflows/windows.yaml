@@ -208,23 +208,16 @@ jobs:
       - name: test
         run: |
           set -x
-          curl -L "https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-pc-windows-msvc.tar.xz" -O
-          tar -xf clang+llvm-18.1.8-x86_64-pc-windows-msvc.tar.xz
-          mv clang+llvm-18.1.8-x86_64-pc-windows-msvc llvm
-          llvm/bin/lldb --help || echo "lldb exited with code $?"
-          llvm-18/bin/lldb --help || echo "lldb exited with code $?"
+          py --version || echo "python not installed"
+          curl -L https://www.python.org/ftp/python/3.12.3/python-3.12.3-amd64.exe -O
+          python-3.12.3-amd64.exe /quiet InstallAllUsers=0 PrependPath=1
           export PATH="$(pwd)/llvm-18/bin:$PATH"
-          lldb --help || echo "lldb exited with code $?"
+          lldb --help
           cat j.lldb
           cat j.lldberr
           cat split.lldb
           ./ROOTFS_DEBUG/bin/jit
-          lldb --help || echo "lldb exited with code $?"
-          lldb ROOTFS_DEBUG/bin/jit -s j.lldb --source-on-crash j.lldberr || echo "lldb exited with code $?"
-          lldb ROOTFS_DEBUG/bin/jit -s split.lldb --source-on-crash j.lldberr || echo "lldb exited with code $?"
-          lldb -s split.lldb --source-on-crash j.lldberr || echo "lldb exited with code $?"
-          lldb ROOTFS_DEBUG/bin/jit || echo "lldb exited with code $?"
-          lldb || echo "lldb exited with code $?"
+          lldb ROOTFS_DEBUG/bin/jit -s j.lldb --source-on-crash j.lldberr
           
       - name: archive rootfs
         run: |
