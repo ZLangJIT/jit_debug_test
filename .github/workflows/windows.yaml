@@ -205,8 +205,10 @@ jobs:
       - name: test
         run: |
           export PATH="$(pwd)/llvm-18/bin:$PATH"
+          set -x
           ./ROOTFS_DEBUG/bin/jit
           lldb ROOTFS_DEBUG/bin/jit.exe -s j.lldb --source-on-crash j.lldberr
+          cat -n tmp.ll
           
       - name: archive rootfs
         run: |
