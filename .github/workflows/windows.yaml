@@ -171,9 +171,9 @@ jobs:
           find win32-libxml2
           ls -l win32-libxml2/lib/libxml2.lib || true
           ls -l win32-libxml2/lib/libxml2-bcc.lib || true
-          ls -l llvm-18
-          ls -l llvm-18/bin
-          ls -l llvm-18/lib
+          ls -l llvm-18 -h
+          ls -l llvm-18/bin -h
+          ls -l llvm-18/lib -h
 
       - name: check if split program is cached
         run: |
