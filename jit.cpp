@@ -68,17 +68,25 @@ extern void __jit_debug_register_code();
 }
 
 std::unique_ptr<llvm::orc::LLJIT> build_jit() {
-    // Detect the host and set code model to small.
-    auto JTMB = ExitOnErr(llvm::orc::JITTargetMachineBuilder::detectHost());
-    if (!JTMB.getTargetTriple().isOSLinux())
-        llvm::errs() << "Warning: This JIT may not work for platforms other than Linux.\n";
-
-    //
-    // Jit compile with -O3
-    //
-    // this seems to have no effect
-    //
-    // JTMB.setCodeGenOptLevel(static_cast<llvm::CodeGenOptLevel>(3));
+    std::string error;
+    const llvm::Target* target = llvm::TargetRegistry::lookupTarget(target_triple, error);
+    
+    auto JTMB = ExitOnErr(llvm::orc::JITTargetMachineBuilder(target_triple));
+    
+    // Retrieve host CPU name and sub-target features and add them to builder.
+    // codegen opt level are kept to default values.
+    llvm::StringMap<bool> FeatureMap;
+    llvm::sys::getHostCPUFeatures(FeatureMap);
+    for (auto &Feature : FeatureMap)
+        JTMB.getFeatures().AddFeature(Feature.first(), Feature.second);
+ 
+    JTMB.setCPU(std::string(llvm::sys::getHostCPUName()));
+    
+    // Position Independent Code(
+    JTMB.setRelocationModel(llvm::Reloc::PIC_);
+    
+    // Don't make assumptions about displacement sizes
+    JTMB.setCodeModel(llvm::CodeModel::Large);
 
     // Create an LLJIT instance and use a custom object linking layer creator to
     // register the GDBRegistrationListener with our RTDyldObjectLinkingLayer.
