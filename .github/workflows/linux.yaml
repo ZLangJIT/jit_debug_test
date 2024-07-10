@@ -67,7 +67,7 @@ jobs:
         run: |
           sudo apk update
           sudo apk upgrade
-          sudo apk add bash git gcc g++ make cmake ninja python3 automake autoconf linux-headers curl
+          sudo apk add tar bash git gcc g++ make cmake ninja python3 automake autoconf linux-headers curl
 
       - name: check if split program is cached
         run: |
