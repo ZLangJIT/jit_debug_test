@@ -159,7 +159,7 @@ jobs:
           tar -xf clang+llvm-18.1.8-x86_64-pc-windows-msvc.tar.xz
           mv clang+llvm-18.1.8-x86_64-pc-windows-msvc llvm-18
           cd llvm-18/bin
-          unzip ../../python-3.10.2-embed-amd64.zip -o
+          unzip -o ../../python-3.10.2-embed-amd64.zip
 
       - name: install DIA SDK
         run: |
