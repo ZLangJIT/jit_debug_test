@@ -29,6 +29,7 @@ jobs:
       - name: check vs
         shell: bash {0}
         run: |
+          ls -l "C:/Program Files (x86)/Microsoft Visual Studio" || echo "vs not installed"
           ls -l "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional" || echo "vs 2019 enterprise not installed"
           ls -l "C:/Program Files (x86)/Microsoft Visual Studio/2022/Professional" || echo "vs 2022 enterprise not installed"
 
