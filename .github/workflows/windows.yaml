@@ -133,7 +133,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: windows-2019
+          - os: windows-2022
             name: windows
 
     runs-on: ${{ matrix.os }}
@@ -158,11 +158,11 @@ jobs:
 
       - name: install DIA SDK
         run: |
-          ls -l "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional" || echo "vs 2019 enterprise not installed"
-          ls -l "C:/Program Files (x86)/Microsoft Visual Studio/2022/Professional" || echo "vs 2022 enterprise not installed"
-          mkdir -p "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK" || true
-          git clone https://github.com/RudjiGames/DIA "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK"
-          mv "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/x64" "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
+          set -x
+          mkdir -p "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional" || true
+          cp -rv "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/DIA SDK" "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK"
+          #git clone https://github.com/RudjiGames/DIA "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK"
+          #mv "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/x64" "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
 
       - name: list files llvm
         run: |
