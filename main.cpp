@@ -1,6 +1,7 @@
 #include "jit.h"
 
-#define STR(x) #x
+#define STR_(x) #x
+#define STR(x) STR_(x)
 
 int main(int argc, char *argv[]) {
 
