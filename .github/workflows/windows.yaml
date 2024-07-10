@@ -185,7 +185,7 @@ jobs:
           mkdir BUILD_DEBUG
           mkdir ROOTFS_DEBUG
           export PATH="$(pwd)/llvm-18/bin:$PATH"
-          cmake -DCMAKE_PREFIX_PATH="$(pwd)/llvm-18/lib/cmake" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0 -DLIBXML_STATIC" -DCMAKE_CXX_FLAGS="-g3 -O0 -DLIBXML_STATIC" -DLIBXML2_INCLUDE_DIR="$(pwd)/win32-libxml2/include" -DLIBXML2_LIBRARY="$(pwd)/win32-libxml2/lib/libxml2.lib:$(pwd)/win32-libxml2/lib/libxml2-bcc.lib" -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
+          cmake -DCMAKE_PREFIX_PATH="$(pwd)/llvm-18/lib/cmake" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0 -DLIBXML_STATIC" -DCMAKE_CXX_FLAGS="-g3 -O0 -DLIBXML_STATIC" -DLIBXML2_INCLUDE_DIR="$(pwd)/win32-libxml2/include" -DLIBXML2_LIBRARY="$(pwd)/win32-libxml2/lib/libxml2.lib" -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
 
       - name: cmake build - Debug - Build
         run: |
