@@ -149,15 +149,12 @@ jobs:
 
       - name: download llvm
         run: |
-          set -v
-          #winget search wget
-          #winget search llvm
-          #winget install wget
           curl -L "https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-pc-windows-msvc.tar.xz" -O
 
       - name: extract llvm
         run: |
           tar -xf clang+llvm-18.1.8-x86_64-pc-windows-msvc.tar.xz
+          mv clang+llvm-18.1.8-x86_64-pc-windows-msvc llvm-18
 
       - name: list files llvm
         run: |
@@ -167,27 +164,23 @@ jobs:
       - name: check if split program is cached
         run: |
           chmod +x ./try_get_release.sh
-          bash -c "./try_get_release.sh   ZLangJIT   jit_debug_test   storage--split--alpine   split.exe.tar || true"
-          bash -c "./try_get_release.sh   ZLangJIT   jit_debug_test   storage--split--alpine   split.exe.tar || true"
-          
-      - name: list libs
-        run: |
-          set -v
-          ls /lib
-          ls /usr/lib
+          bash -c "./try_get_release.sh   ZLangJIT   jit_debug_test   storage--split--windows   split.exe.tar || true"
           
       - name: cmake build - Debug - Generate
         run: |
           mkdir BUILD_DEBUG
           mkdir ROOTFS_DEBUG
-          cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
+          export PATH="$(pwd)/llvm-18/bin:$PATH”
+          cmake -DCMAKE_PREFIX_PATH="$(pwd)/llvm-18/lib/cmake" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
 
       - name: cmake build - Debug - Build
         run: |
+          export PATH="$(pwd)/llvm-18/bin:$PATH”
           cmake --build BUILD_DEBUG
 
       - name: cmake build - Debug - Install
         run: |
+          export PATH="$(pwd)/llvm-18/bin:$PATH”
           cmake --install BUILD_DEBUG
           find ROOTFS_DEBUG
           ls -l ROOTFS_DEBUG
@@ -197,6 +190,7 @@ jobs:
           
       - name: test
         run: |
+          export PATH="$(pwd)/llvm-18/bin:$PATH”
           ./ROOTFS_DEBUG/bin/jit
           lldb ROOTFS_DEBUG/bin/jit -s j.lldb --source-on-crash j.lldberr
           
