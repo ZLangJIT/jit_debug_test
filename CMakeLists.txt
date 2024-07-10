@@ -8,26 +8,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(LLVM REQUIRED CONFIG)
 
-message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
-message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
-
-# Set your project compile flags.
-# E.g. if using the C++ header files
-# you will need to enable C++11 support
-# for your compiler.
-
 include_directories(${LLVM_INCLUDE_DIRS})
 separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS_LIST})
 
-# Now build our tools
 add_executable(jit jit.cpp main.cpp)
 
-# Find the libraries that correspond to the LLVM components
-# that we wish to use
-# llvm_map_components_to_libnames(llvm_libs support core irreader)
-
-# Link against LLVM libraries
+# Link against all LLVM libraries
 target_link_libraries(jit ${LLVM_AVAILABLE_LIBS})
 
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
@@ -38,5 +25,9 @@ install(TARGETS jit
         RUNTIME DESTINATION "${INSTALL_BIN_DIR}"
         ARCHIVE DESTINATION "${INSTALL_LIB_DIR}"
         LIBRARY DESTINATION "${INSTALL_LIB_DIR}" )
+
+if (WIN32)
+    install(FILES $<TARGET_PDB_FILE:jit> DESTINATION "${INSTALL_BIN_DIR}" OPTIONAL)
+endif()
 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/jit.h DESTINATION "${INSTALL_INC_DIR}")

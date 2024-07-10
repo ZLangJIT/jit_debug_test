@@ -199,9 +199,7 @@ jobs:
           set -x
           cmake --install BUILD_DEBUG
           find ROOTFS_DEBUG
-          ls -l ROOTFS_DEBUG
           ls -lh ROOTFS_DEBUG
-          ls -l ROOTFS_DEBUG/bin
           ls -lh ROOTFS_DEBUG/bin
           
       - name: test
