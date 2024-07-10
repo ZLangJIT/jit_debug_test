@@ -78,7 +78,7 @@ extern void __jit_debug_register_code();
 
 std::unique_ptr<llvm::orc::LLJIT> build_jit() {
     
-    auto JTMB = ExitOnErr(llvm::orc::JITTargetMachineBuilder(llvm::Triple(target_triple)));
+    auto JTMB = llvm::orc::JITTargetMachineBuilder(llvm::Triple(target_triple));
     
     // Retrieve host CPU name and sub-target features and add them to builder.
     // codegen opt level are kept to default values.
