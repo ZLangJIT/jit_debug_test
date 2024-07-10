@@ -34,7 +34,7 @@ jobs:
 
   build_split:
     needs: should_run
-    if: true
+    if: false
     # so we can upload releases
     permissions:
       contents: write
@@ -124,8 +124,8 @@ jobs:
             ./split.exe.tar.sha512
 
   test:
-    #needs: should_run
-    needs: build_split
+    needs: should_run
+    #needs: build_split
     # so we can upload releases
     permissions:
       contents: write
@@ -159,23 +159,19 @@ jobs:
           tar -xf clang+llvm-18.1.8-x86_64-pc-windows-msvc.tar.xz
           mv clang+llvm-18.1.8-x86_64-pc-windows-msvc llvm-18
           cd llvm-18/bin
-          unzip ../../python-3.10.2-embed-amd64.zip
+          unzip ../../python-3.10.2-embed-amd64.zip -o
 
       - name: install DIA SDK
         run: |
           set -x
           mkdir -p "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional" || true
           cp -rv "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/DIA SDK" "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK"
-          #git clone https://github.com/RudjiGames/DIA "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK"
-          #mv "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/x64" "C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/DIA SDK/lib/amd64"
 
       - name: list files llvm
         run: |
           set -x
           ls -l
           find win32-libxml2
-          ls -l win32-libxml2/lib/libxml2.lib || true
-          ls -l win32-libxml2/lib/libxml2-bcc.lib || true
           ls -l llvm-18 -h
           ls -l llvm-18/bin -h
           ls -l llvm-18/lib -h
