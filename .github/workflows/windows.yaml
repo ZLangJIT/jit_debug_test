@@ -34,7 +34,7 @@ jobs:
 
   build_split:
     needs: should_run
-    if: false
+    if: true
     # so we can upload releases
     permissions:
       contents: write
@@ -122,8 +122,8 @@ jobs:
             ./split.exe.tar.sha512
 
   test:
-    needs: should_run
-    #needs: build_split
+    #needs: should_run
+    needs: build_split
     # so we can upload releases
     permissions:
       contents: write
