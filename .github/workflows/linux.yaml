@@ -75,6 +75,8 @@ jobs:
           cd split
           chmod +x ../try_get_release.sh
           bash -c "../try_get_release.sh   ZLangJIT   jit_debug_test   storage--split--alpine   split_build.tar || true"
+          set -x
+          find BUILD_DEBUG
 
       - name: build split program
         run: |
