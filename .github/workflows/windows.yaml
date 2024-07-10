@@ -170,17 +170,17 @@ jobs:
         run: |
           mkdir BUILD_DEBUG
           mkdir ROOTFS_DEBUG
-          export PATH="$(pwd)/llvm-18/bin:$PATH”
+          export PATH="$(pwd)/llvm-18/bin:$PATH"
           cmake -DCMAKE_PREFIX_PATH="$(pwd)/llvm-18/lib/cmake" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_FLAGS="-g3 -O0" -DCMAKE_CXX_FLAGS="-g3 -O0" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
 
       - name: cmake build - Debug - Build
         run: |
-          export PATH="$(pwd)/llvm-18/bin:$PATH”
+          export PATH="$(pwd)/llvm-18/bin:$PATH"
           cmake --build BUILD_DEBUG
 
       - name: cmake build - Debug - Install
         run: |
-          export PATH="$(pwd)/llvm-18/bin:$PATH”
+          export PATH="$(pwd)/llvm-18/bin:$PATH"
           cmake --install BUILD_DEBUG
           find ROOTFS_DEBUG
           ls -l ROOTFS_DEBUG
@@ -190,7 +190,7 @@ jobs:
           
       - name: test
         run: |
-          export PATH="$(pwd)/llvm-18/bin:$PATH”
+          export PATH="$(pwd)/llvm-18/bin:$PATH"
           ./ROOTFS_DEBUG/bin/jit
           lldb ROOTFS_DEBUG/bin/jit -s j.lldb --source-on-crash j.lldberr
           
