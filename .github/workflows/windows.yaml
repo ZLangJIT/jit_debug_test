@@ -206,17 +206,13 @@ jobs:
           
       - name: test
         run: |
-          set -x
           export PATH="$(pwd)/llvm-18/bin:$PATH"
-          lldb --help
-          cat j.lldb
-          cat j.lldberr
-          cat split.lldb
           ./ROOTFS_DEBUG/bin/jit
           lldb ROOTFS_DEBUG/bin/jit.exe -s j.lldb --source-on-crash j.lldberr
           
       - name: archive rootfs
         run: |
+          export PATH="$(pwd)/llvm-18/bin:$PATH"
           # 500 mb
           #
           lldb ./split_exe/split.exe -s split.lldb --source-on-crash j.lldberr -- --split -r ROOTFS_DEBUG --name ROOTFS_DEBUG --size $((1024*1024*500))
