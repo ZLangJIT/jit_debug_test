@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     
     JIT jit;
     
-    system(STR(CLANG_EXE) " jit_code.c -emit-llvm -O0 -g3 --triple " STR(target_triple) " -S -o tmp.ll");
+    system(STR(CLANG_EXE) " jit_code.c -emit-llvm -O0 -g3 -triple " STR(target_triple) " -S -o tmp.ll");
     
     jit.add_IR_module("tmp.ll");
     
