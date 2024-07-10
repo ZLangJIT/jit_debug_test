@@ -210,7 +210,10 @@ jobs:
           export PATH="$(pwd)/llvm-18/bin:$PATH"
           set -x
           ./ROOTFS_DEBUG/bin/jit
-          lldb ROOTFS_DEBUG/bin/jit -s j.lldb --source-on-crash j.lldberr
+          lldb --help
+          lldb ROOTFS_DEBUG/bin/jit -s j.lldb --source-on-crash j.lldberr || true
+          lldb ROOTFS_DEBUG/bin/jit || true
+          lldb || true
           
       - name: archive rootfs
         run: |
