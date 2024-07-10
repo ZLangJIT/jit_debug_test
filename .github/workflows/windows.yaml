@@ -209,9 +209,14 @@ jobs:
         run: |
           export PATH="$(pwd)/llvm-18/bin:$PATH"
           set -x
+          cat j.lldb
+          cat j.lldberr
+          cat split.lldb
           ./ROOTFS_DEBUG/bin/jit
           lldb --help
           lldb ROOTFS_DEBUG/bin/jit -s j.lldb --source-on-crash j.lldberr || true
+          lldb ROOTFS_DEBUG/bin/jit -s split.lldb --source-on-crash j.lldberr || true
+          lldb -s split.lldb --source-on-crash j.lldberr || true
           lldb ROOTFS_DEBUG/bin/jit || true
           lldb || true
           
