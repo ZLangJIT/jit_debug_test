@@ -159,7 +159,7 @@ jobs:
       - name: list files llvm
         run: |
           ls -l
-          find .
+          find llvm-18
 
       - name: check if split program is cached
         run: |
