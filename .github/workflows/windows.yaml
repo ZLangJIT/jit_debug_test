@@ -152,11 +152,14 @@ jobs:
       - name: download llvm
         run: |
           curl -L "https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/clang+llvm-18.1.8-x86_64-pc-windows-msvc.tar.xz" -O
+          curl -L "https://www.python.org/ftp/python/3.10.2/python-3.10.2-embed-amd64.zip" -O
 
       - name: extract llvm
         run: |
           tar -xf clang+llvm-18.1.8-x86_64-pc-windows-msvc.tar.xz
           mv clang+llvm-18.1.8-x86_64-pc-windows-msvc llvm-18
+          unzip python-3.10.2-embed-amd64.zip
+          mv -v python-3.10.2-embed-amd64/* llvm-18/bin
 
       - name: install DIA SDK
         run: |
@@ -208,9 +211,6 @@ jobs:
       - name: test
         run: |
           set -x
-          py --version || echo "python not installed"
-          curl -L https://www.python.org/ftp/python/3.12.3/python-3.12.3-amd64.exe -O
-          python-3.12.3-amd64.exe /quiet InstallAllUsers=0 PrependPath=1
           export PATH="$(pwd)/llvm-18/bin:$PATH"
           lldb --help
           cat j.lldb
