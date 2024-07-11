@@ -106,38 +106,26 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
     std::unique_ptr<llvm::orc::LLJIT> jit = ExitOnErr(llvm::orc::LLJITBuilder()
         .setJITTargetMachineBuilder(std::move(JTMB))
         .setObjectLinkingLayerCreator([&](llvm::orc::ExecutionSession &ES, const llvm::Triple &TT) {
-            auto GetMemMgr = []() {
-                llvm::outs() << "JIT SectionMemoryManager created.\n";
-                return std::make_unique<llvm::SectionMemoryManager>();
-            };
-            auto ObjLinkingLayer = std::make_unique<llvm::orc::RTDyldObjectLinkingLayer>(ES, std::move(GetMemMgr));
+          
+            auto EPC = ExitOnErr(llvm::orc::SelfExecutorProcessControl::Create(std::make_shared<llvm::orc::SymbolStringPool>()));
+            
+            auto L = std::make_unique<orc::ObjectLinkingLayer>(ES, EPC->getMemMgr());
 
             llvm::outs() << "JIT ObjLinkingLayer created.\n";
             
-            // Register the event listener.
-            ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
-
-            // Make sure the debug info sections aren't stripped.
-            ObjLinkingLayer->setProcessAllSections(true);
-            
-            return ObjLinkingLayer;
+            return L;
         })
-        .setNotifyCreatedCallback([](auto & E) {
-            if (E) {
-              llvm::errs() << "JIT could not be created.\nError: " << E << "\n";
-              return llvm::Error::success();
-            }
-            
-            llvm::outs() << "JIT created.\n";
-            
+        .setPrePlatformSetup([](llvm::orc::LLJIT &J) {
             // Try to enable debugging of JIT'd code (only works with JITLink for
             // ELF and MachO).
-            if (auto Ee = llvm::orc::enableDebuggerSupport(*E)) {
-              llvm::errs() << "JIT failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.\nError: " << Ee << "\n";
+            if (auto E = llvm::orc::enableDebuggerSupport(J)) {
+              llvm::errs() << "JIT failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.\nError: " << E << "\n";
             }
             return llvm::Error::success();
         })
         .create());
+        
+        llvm::outs() << "JIT created.\n";
         
         return jit;
 }
