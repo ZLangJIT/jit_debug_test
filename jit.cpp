@@ -79,7 +79,9 @@ extern "C" {
 extern struct jit_descriptor __jit_debug_descriptor;
 extern void __jit_debug_register_code();
 
-extern llvm::orc::shared::CWrapperFunctionResult llvm_orc_registerJITLoaderGDBWrapper(const char *Data, size_t Size);
+extern llvm::orc::shared::CWrapperFunctionResult
+llvm_orc_registerJITLoaderGDBWrapper(const char *Data, uint64_t Size);
+
 extern llvm::orc::shared::CWrapperFunctionResult llvm_orc_registerJITLoaderGDBAllocAction(const char *Data, size_t Size);
 }
 
