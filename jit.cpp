@@ -27,6 +27,8 @@
 
 #include "jit.h"
 
+#include <stdio.h>
+
 llvm::ExitOnError ExitOnErr;
 
 JIT::main_llvm_init::main_llvm_init(int argc, const char *argv[]) {
@@ -105,12 +107,14 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
         .setJITTargetMachineBuilder(std::move(JTMB))
         .setObjectLinkingLayerCreator([&](llvm::orc::ExecutionSession &ES, const llvm::Triple &TT) {
             auto GetMemMgr = []() {
-              llvm::outs() << "JIT SectionMemoryManager created.\n";
+                llvm::outs() << "JIT SectionMemoryManager created.\n";
+                fflush(stdout); fflush(stderr);
                 return std::make_unique<llvm::SectionMemoryManager>();
             };
             auto ObjLinkingLayer = std::make_unique<llvm::orc::RTDyldObjectLinkingLayer>(ES, std::move(GetMemMgr));
 
             llvm::outs() << "JIT ObjLinkingLayer created.\n";
+            fflush(stdout); fflush(stderr);
             
             // Register the event listener.
             ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
@@ -125,12 +129,14 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
             // ELF and MachO).
             if (auto E = llvm::orc::enableDebuggerSupport(J)) {
               llvm::errs() << "JIT failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.\nError: " << E << "\n";
+              fflush(stdout); fflush(stderr);
             }
             return llvm::Error::success();
         })
         .create());
         
         llvm::outs() << "JIT created.\n";
+        fflush(stdout); fflush(stderr);
         
         return jit;
 }
@@ -147,6 +153,7 @@ void JIT::add_IR_module(llvm::StringRef file_name) {
     std::unique_ptr<llvm::Module> M = llvm::parseIRFile(file_name, Err, *Ctx);
     if (!M) {
         llvm::errs() << "JIT IR Read error.\n";
+        fflush(stdout); fflush(stderr);
         return;
     }
     
@@ -171,6 +178,7 @@ void JIT::add_IR_module(llvm::StringRef file_name) {
     
     if (!expected) {
         llvm::errs() << "JIT IR createTargetMachine error.\n";
+        fflush(stdout); fflush(stderr);
         return;
     }
     
