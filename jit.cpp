@@ -124,7 +124,7 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
         
         llvm::outs() << "JIT created.\n"
         #ifndef NDEBUG
-        << jit << "\n"
+        << *jit << "\n"
         #endif
         ;
         
