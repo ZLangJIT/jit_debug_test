@@ -52,7 +52,7 @@ JIT::main_llvm_init::main_llvm_init(int argc, const char *argv[]) {
     // Register the target printer for --version.
     llvm::cl::AddExtraVersionPrinter(llvm::TargetRegistry::printRegisteredTargetsForVersion);
 
-    //llvm::cl::ParseCommandLineOptions(argc, argv, "JIT");
+    llvm::cl::ParseCommandLineOptions(argc, argv, "JIT");
     ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 }
 
@@ -105,23 +105,32 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
         .setJITTargetMachineBuilder(std::move(JTMB))
         .setObjectLinkingLayerCreator([&](llvm::orc::ExecutionSession &ES, const llvm::Triple &TT) {
             auto GetMemMgr = []() {
+              llvm::outs() << "JIT SectionMemoryManager created.\n";
                 return std::make_unique<llvm::SectionMemoryManager>();
             };
             auto ObjLinkingLayer = std::make_unique<llvm::orc::RTDyldObjectLinkingLayer>(ES, std::move(GetMemMgr));
 
+            llvm::outs() << "JIT ObjLinkingLayer created.\n";
+            
             // Register the event listener.
             ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
 
             // Make sure the debug info sections aren't stripped.
             ObjLinkingLayer->setProcessAllSections(true);
-
+            
             return ObjLinkingLayer;
         })
         .create());
+        
+        llvm::outs() << "JIT created.\n"
+        #ifndef NDEBUG
+        << jit << "\n"
+        #endif
+        ;
+        
         if (auto E = llvm::orc::enableDebuggerSupport(*jit)) {
           llvm::errs() << "JIT failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.\nError: " << E << "\n";
         }
-        llvm::outs() << "JIT Initialized.\n";
         return jit;
 }
 

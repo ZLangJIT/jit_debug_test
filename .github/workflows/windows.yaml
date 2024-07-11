@@ -206,7 +206,10 @@ jobs:
         run: |
           export PATH="$(pwd)/llvm-18/bin:$PATH"
           set -x
-          ./ROOTFS_DEBUG/bin/jit
+          ./ROOTFS_DEBUG/bin/jit --help || true
+          ./ROOTFS_DEBUG/bin/jit || true
+          ./ROOTFS_DEBUG/bin/jit -debug || true
+          ./ROOTFS_DEBUG/bin/jit --debug || true
           lldb ROOTFS_DEBUG/bin/jit.exe -s j.lldb --source-on-crash j.lldberr
           cat -n tmp.ll
           
