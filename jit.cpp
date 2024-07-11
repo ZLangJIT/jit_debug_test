@@ -16,6 +16,10 @@
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/PrettyStackTrace.h>
 
+#include <llvm/ExecutionEngine/Orc/Debugging/DebuggerSupport.h>
+#include <llvm/ExecutionEngine/Orc/DebugObjectManagerPlugin.h>
+#include <llvm/ExecutionEngine/Orc/Debugging/DebuggerSupportPlugin.h>
+
 #include <llvm/IRReader/IRReader.h>
 
 #include <llvm/MC/TargetRegistry.h>
@@ -97,7 +101,7 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
 
     // Create an LLJIT instance and use a custom object linking layer creator to
     // register the GDBRegistrationListener with our RTDyldObjectLinkingLayer.
-    return ExitOnErr(llvm::orc::LLJITBuilder()
+    std::unique_ptr<llvm::orc::LLJIT> jit = ExitOnErr(llvm::orc::LLJITBuilder()
         .setJITTargetMachineBuilder(std::move(JTMB))
         .setObjectLinkingLayerCreator([&](llvm::orc::ExecutionSession &ES, const llvm::Triple &TT) {
             auto GetMemMgr = []() {
@@ -114,6 +118,10 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
             return ObjLinkingLayer;
         })
         .create());
+        if (!llvm::orc::enableDebuggerSupport(*jit)) {
+          Err.print("JIT failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.", llvm::errs());
+        }
+        return jit;
 }
 
 JIT::JIT() : jit(build_jit()) {}
