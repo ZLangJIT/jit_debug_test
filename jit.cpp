@@ -79,24 +79,9 @@ extern "C" {
 extern struct jit_descriptor __jit_debug_descriptor;
 extern void __jit_debug_register_code();
 
-extern llvm::orc::shared::CWrapperFunctionResult
-llvm_orc_registerJITLoaderGDBWrapper(const char *Data, uint64_t Size);
-
-extern llvm::orc::shared::CWrapperFunctionResult llvm_orc_registerJITLoaderGDBAllocAction(const char *Data, size_t Size);
-}
-
-void linkComponents() {
-  #define ADDRO(x) llvm::errs() << "address of [ " #x " ] = " << (void *)&x << "\n"
-  ADDRO(llvm_orc_registerEHFrameSectionWrapper);
-  ADDRO(llvm_orc_deregisterEHFrameSectionWrapper);
-  ADDRO(llvm_orc_registerJITLoaderGDBWrapper);
-  ADDRO(llvm_orc_registerJITLoaderGDBAllocAction);
-  #undef ADDRO
 }
 
 std::unique_ptr<llvm::orc::LLJIT> build_jit() {
-  
-  linkComponents();
     
     auto JTMB = llvm::orc::JITTargetMachineBuilder(llvm::Triple(target_triple));
     
@@ -121,39 +106,21 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
         .setJITTargetMachineBuilder(std::move(JTMB))
         .setObjectLinkingLayerCreator([&](llvm::orc::ExecutionSession &ES, const llvm::Triple &TT) {
           
-            auto EPC = ExitOnErr(llvm::orc::SelfExecutorProcessControl::Create(std::make_shared<llvm::orc::SymbolStringPool>()));
-            
-            auto ObjLinkingLayer = std::make_unique<llvm::orc::ObjectLinkingLayer>(ES, EPC->getMemMgr());
-            
-            ObjLinkingLayer->addPlugin(std::make_unique<llvm::orc::EHFrameRegistrationPlugin>(ES, ExitOnErr(llvm::orc::EPCEHFrameRegistrar::Create(ES))));
-            
-    if (TT.isOSBinFormatMachO())
-        llvm::outs() << "JIT ObjLinkingLayer Debugging Information may not work on darwin.\n";
-        // ObjLinkingLayer->addPlugin(ExitOnErr(llvm::orc::GDBJITDebugInfoRegistrationPlugin::Create(ES, JD, TM->getTargetTripl));
-        
-#ifndef _COMPILER_ASAN_ENABLED_
-    else
-        //EPCDebugObjectRegistrar doesn't take a JITDylib, so we have to directly provide the call address
-        ObjLinkingLayer->addPlugin(std::make_unique<llvm::orc::DebugObjectManagerPlugin>(ES, std::make_unique<llvm::orc::EPCDebugObjectRegistrar>(ES, llvm::orc::ExecutorAddr::fromPtr(&llvm_orc_registerJITLoaderGDBWrapper))));
-#endif
-            
+            auto GetMemMgr = []() {
+                llvm::outs() << "JIT SectionMemoryManager created.\n";
+                return std::make_unique<llvm::SectionMemoryManager>();
+            };
+            auto ObjLinkingLayer = std::make_unique<llvm::orc::RTDyldObjectLinkingLayer>(ES, std::move(GetMemMgr));
+
             // Register the event listener.
-            //ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
-            
+            ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
+
             // Make sure the debug info sections aren't stripped.
-            //ObjLinkingLayer->setProcessAllSections(true);
+            ObjLinkingLayer->setProcessAllSections(true);
 
             llvm::outs() << "JIT ObjLinkingLayer created.\n";
             
             return ObjLinkingLayer;
-        })
-        .setPrePlatformSetup([](llvm::orc::LLJIT &J) {
-            // Try to enable debugging of JIT'd code (only works with JITLink for
-            // ELF and MachO).
-            if (auto E = llvm::orc::enableDebuggerSupport(J)) {
-              llvm::errs() << "JIT failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.\nError: " << E << "\n";
-            }
-            return llvm::Error::success();
         })
         .create());
         
@@ -182,31 +149,10 @@ void JIT::add_IR_module(llvm::StringRef file_name) {
         }
     }
     
-    auto JTMB = llvm::orc::JITTargetMachineBuilder(llvm::Triple(target_triple));
-    
-    // Retrieve host CPU name and sub-target features and add them to builder.
-    // codegen opt level are kept to default values.
-    llvm::StringMap<bool> FeatureMap;
-    llvm::sys::getHostCPUFeatures(FeatureMap);
-    for (auto &Feature : FeatureMap)
-        JTMB.getFeatures().AddFeature(Feature.first(), Feature.second);
- 
-    JTMB.setCPU(std::string(llvm::sys::getHostCPUName()));
-    
-    // Position Independent Code(
-    JTMB.setRelocationModel(llvm::Reloc::PIC_);
-    
-    // Don't make assumptions about displacement sizes
-    JTMB.setCodeModel(llvm::CodeModel::Large);
-    
-    auto expected = JTMB.createTargetMachine();
-    
-    if (!expected) {
-        llvm::errs() << "JIT IR createTargetMachine error.\n";
-        return;
-    }
-    
-    M->setDataLayout((*expected)->createDataLayout());
+    llvm::outs() << "JIT addIRModule setting module data layout to JIT data layout.\n";
+    M->setDataLayout(jit->getDataLayout());
+    llvm::outs() << "JIT addIRModule setting module triple to JIT triple.\n";
+    M->setTargetTriple(jit->getTargetTriple().getTriple());
     
     add_IR_module(std::move(llvm::orc::ThreadSafeModule(std::move(M), std::move(Ctx))));
 }
