@@ -109,11 +109,17 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
           
             auto EPC = ExitOnErr(llvm::orc::SelfExecutorProcessControl::Create(std::make_shared<llvm::orc::SymbolStringPool>()));
             
-            auto L = std::make_unique<orc::ObjectLinkingLayer>(ES, EPC->getMemMgr());
+            auto ObjLinkingLayer = std::make_unique<llvm::orc::ObjectLinkingLayer>(ES, EPC->getMemMgr());
+            
+            // Register the event listener.
+            //ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
+            
+            // Make sure the debug info sections aren't stripped.
+            //ObjLinkingLayer->setProcessAllSections(true);
 
             llvm::outs() << "JIT ObjLinkingLayer created.\n";
             
-            return L;
+            return ObjLinkingLayer;
         })
         .setPrePlatformSetup([](llvm::orc::LLJIT &J) {
             // Try to enable debugging of JIT'd code (only works with JITLink for
