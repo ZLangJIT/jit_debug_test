@@ -108,13 +108,11 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
         .setObjectLinkingLayerCreator([&](llvm::orc::ExecutionSession &ES, const llvm::Triple &TT) {
             auto GetMemMgr = []() {
                 llvm::outs() << "JIT SectionMemoryManager created.\n";
-                fflush(stdout); fflush(stderr);
                 return std::make_unique<llvm::SectionMemoryManager>();
             };
             auto ObjLinkingLayer = std::make_unique<llvm::orc::RTDyldObjectLinkingLayer>(ES, std::move(GetMemMgr));
 
             llvm::outs() << "JIT ObjLinkingLayer created.\n";
-            fflush(stdout); fflush(stderr);
             
             // Register the event listener.
             ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
@@ -129,14 +127,12 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
             // ELF and MachO).
             if (auto E = llvm::orc::enableDebuggerSupport(J)) {
               llvm::errs() << "JIT failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.\nError: " << E << "\n";
-              fflush(stdout); fflush(stderr);
             }
             return llvm::Error::success();
         })
         .create());
         
         llvm::outs() << "JIT created.\n";
-        fflush(stdout); fflush(stderr);
         
         return jit;
 }
@@ -144,17 +140,21 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
 JIT::JIT() : jit(build_jit()) {}
 
 void JIT::add_IR_module(llvm::orc::ThreadSafeModule && module) {
+    llvm::outs() << "JIT addIRModule being called.\n";
     ExitOnErr(jit->addIRModule(std::move(module)));
+    llvm::outs() << "JIT addIRModule called.\n";
 }
 
 void JIT::add_IR_module(llvm::StringRef file_name) {
     auto Ctx = std::make_unique<llvm::LLVMContext>();
-    llvm::SMDiagnostic Err;
-    std::unique_ptr<llvm::Module> M = llvm::parseIRFile(file_name, Err, *Ctx);
-    if (!M) {
-        llvm::errs() << "JIT IR Read error.\n";
-        fflush(stdout); fflush(stderr);
-        return;
+    std::unique_ptr<llvm::Module> M;
+    {
+        llvm::SMDiagnostic Err;
+        M = llvm::parseIRFile(file_name, Err, *Ctx);
+        if (!M) {
+            Err.print("JIT IR Read error.\n", llvm::errs());
+            return;
+        }
     }
     
     auto JTMB = llvm::orc::JITTargetMachineBuilder(llvm::Triple(target_triple));
@@ -178,7 +178,6 @@ void JIT::add_IR_module(llvm::StringRef file_name) {
     
     if (!expected) {
         llvm::errs() << "JIT IR createTargetMachine error.\n";
-        fflush(stdout); fflush(stderr);
         return;
     }
     
