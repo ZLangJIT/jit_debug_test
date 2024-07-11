@@ -119,6 +119,7 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
         })
         .create());
         if (!llvm::orc::enableDebuggerSupport(*jit)) {
+          llvm::SMDiagnostic Err;
           Err.print("JIT failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.", llvm::errs());
         }
         return jit;
