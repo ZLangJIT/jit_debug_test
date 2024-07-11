@@ -82,6 +82,13 @@ extern void __jit_debug_register_code();
 
 }
 
+LLVM_ATTRIBUTE_USED void linkComponents() {
+  llvm::errs() << (void *)&llvm_orc_registerEHFrameSectionWrapper
+         << (void *)&llvm_orc_deregisterEHFrameSectionWrapper
+         << (void *)&llvm_orc_registerJITLoaderGDBWrapper
+         << (void *)&llvm_orc_registerJITLoaderGDBAllocAction;
+}
+
 std::unique_ptr<llvm::orc::LLJIT> build_jit() {
     
     auto JTMB = llvm::orc::JITTargetMachineBuilder(llvm::Triple(target_triple));
