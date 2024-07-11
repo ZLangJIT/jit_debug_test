@@ -122,11 +122,10 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
         })
         .create());
         
-        llvm::outs() << "JIT created.\n"
+        llvm::outs() << "JIT created.\n";
         #ifndef NDEBUG
-        << *jit << "\n"
+        jit->print(llvm::outs());
         #endif
-        ;
         
         if (auto E = llvm::orc::enableDebuggerSupport(*jit)) {
           llvm::errs() << "JIT failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.\nError: " << E << "\n";
