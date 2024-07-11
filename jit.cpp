@@ -101,7 +101,7 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
     
     #ifndef NDEBUG
     llvm::outs() << "Using JIT Builder:\n" << JTMB << "\n";
-    //JTMB.print(llvm::outs());
+    JTMB.print(llvm::outs());
     #endif
 
     // Create an LLJIT instance and use a custom object linking layer creator to
