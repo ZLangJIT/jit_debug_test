@@ -98,11 +98,6 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
     
     // Don't make assumptions about displacement sizes
     JTMB.setCodeModel(llvm::CodeModel::Large);
-    
-    #ifndef NDEBUG
-    llvm::outs() << "Using JIT Builder:\n" << JTMB << "\n";
-    JTMB.print(llvm::outs());
-    #endif
 
     // Create an LLJIT instance and use a custom object linking layer creator to
     // register the GDBRegistrationListener with our RTDyldObjectLinkingLayer.
