@@ -122,7 +122,7 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
             
             return ObjLinkingLayer;
         })
-        .setNotifyCreatedCallback([](llvm::Error<llvm::orc::LLJIT&> & E) {
+        .setNotifyCreatedCallback([](auto & E) {
             if (E) {
               llvm::errs() << "JIT could not be created.\nError: " << E << "\n";
               return llvm::Error::success();
@@ -132,8 +132,8 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
             
             // Try to enable debugging of JIT'd code (only works with JITLink for
             // ELF and MachO).
-            if (auto E = llvm::orc::enableDebuggerSupport(*E)) {
-              llvm::errs() << "JIT failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.\nError: " << E << "\n";
+            if (auto Ee = llvm::orc::enableDebuggerSupport(*E)) {
+              llvm::errs() << "JIT failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.\nError: " << Ee << "\n";
             }
             return llvm::Error::success();
         })
