@@ -85,14 +85,18 @@ llvm_orc_registerJITLoaderGDBWrapper(const char *Data, uint64_t Size);
 extern llvm::orc::shared::CWrapperFunctionResult llvm_orc_registerJITLoaderGDBAllocAction(const char *Data, size_t Size);
 }
 
-LLVM_ATTRIBUTE_USED void linkComponents() {
-  llvm::errs() << (void *)&llvm_orc_registerEHFrameSectionWrapper
-         << (void *)&llvm_orc_deregisterEHFrameSectionWrapper
-         << (void *)&llvm_orc_registerJITLoaderGDBWrapper
-         << (void *)&llvm_orc_registerJITLoaderGDBAllocAction;
+void linkComponents() {
+  #define ADDRO(x) llvm::errs() << "address of [ " #x " ] = " << (void *)&x << "\n"
+  ADDRO(llvm_orc_registerEHFrameSectionWrapper);
+  ADDRO(llvm_orc_deregisterEHFrameSectionWrapper);
+  ADDRO(llvm_orc_registerJITLoaderGDBWrapper);
+  ADDRO(llvm_orc_registerJITLoaderGDBAllocAction);
+  #undef ADDRO
 }
 
 std::unique_ptr<llvm::orc::LLJIT> build_jit() {
+  
+  linkComponents();
     
     auto JTMB = llvm::orc::JITTargetMachineBuilder(llvm::Triple(target_triple));
     
@@ -134,10 +138,10 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
 #endif
             
             // Register the event listener.
-            ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
+            //ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
             
             // Make sure the debug info sections aren't stripped.
-            ObjLinkingLayer->setProcessAllSections(true);
+            //ObjLinkingLayer->setProcessAllSections(true);
 
             llvm::outs() << "JIT ObjLinkingLayer created.\n";
             
