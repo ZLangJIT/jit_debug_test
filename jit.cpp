@@ -1,35 +1,31 @@
-#include <llvm/ADT/StringRef.h>
-#include <llvm/ExecutionEngine/Orc/ThreadSafeModule.h>
-#include <llvm/Support/CommandLine.h>
-#include <llvm/Support/Error.h>
-#include <llvm/Support/SourceMgr.h>
 #include <llvm/ADT/StringMap.h>
+#include <llvm/ADT/StringRef.h>
 #include <llvm/ExecutionEngine/JITEventListener.h>
+#include <llvm/ExecutionEngine/JITSymbol.h>
 #include <llvm/ExecutionEngine/JITLink/JITLinkMemoryManager.h>
+#include <llvm/ExecutionEngine/Orc/Debugging/DebuggerSupport.h>
+#include <llvm/ExecutionEngine/Orc/Debugging/DebuggerSupportPlugin.h>
+#include <llvm/ExecutionEngine/Orc/DebugObjectManagerPlugin.h>
+#include <llvm/ExecutionEngine/Orc/EPCEHFrameRegistrar.h>
 #include <llvm/ExecutionEngine/Orc/ExecutionUtils.h>
 #include <llvm/ExecutionEngine/Orc/LLJIT.h>
 #include <llvm/ExecutionEngine/Orc/RTDyldObjectLinkingLayer.h>
-#include <llvm/ExecutionEngine/Orc/TargetProcess/TargetExecutionUtils.h>
-#include <llvm/ExecutionEngine/SectionMemoryManager.h>
-#include <llvm/Support/CommandLine.h>
-#include <llvm/Support/TargetSelect.h>
-#include <llvm/Support/raw_ostream.h>
-#include <llvm/Support/PrettyStackTrace.h>
-
-#include <llvm/ExecutionEngine/Orc/Debugging/DebuggerSupport.h>
-#include <llvm/ExecutionEngine/Orc/DebugObjectManagerPlugin.h>
-#include <llvm/ExecutionEngine/Orc/Debugging/DebuggerSupportPlugin.h>
-
-#include <llvm/ExecutionEngine/Orc/EPCEHFrameRegistrar.h>
+#include <llvm/ExecutionEngine/Orc/TargetProcess/JITLoaderGDB.h>
 #include <llvm/ExecutionEngine/Orc/TargetProcess/RegisterEHFrames.h>
-
+#include <llvm/ExecutionEngine/Orc/TargetProcess/TargetExecutionUtils.h>
+#include <llvm/ExecutionEngine/Orc/ThreadSafeModule.h>
+#include <llvm/ExecutionEngine/SectionMemoryManager.h>
 #include <llvm/IRReader/IRReader.h>
-
 #include <llvm/MC/TargetRegistry.h>
 #include <llvm/TargetParser/Host.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/Error.h>
+#include <llvm/Support/PrettyStackTrace.h>
+#include <llvm/Support/raw_ostream.h>
+#include <llvm/Support/SourceMgr.h>
+#include <llvm/Support/TargetSelect.h>
 
-#include "jit.h"
-
+#include "jit.h
 #include <stdio.h>
 
 llvm::ExitOnError ExitOnErr;
@@ -121,7 +117,7 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
             
             auto ObjLinkingLayer = std::make_unique<llvm::orc::ObjectLinkingLayer>(ES, EPC->getMemMgr());
             
-              ObjectLinkingLayer->addPlugin(std::make_unique<llvm::orc::EHFrameRegistrationPlugin>(ES, llvm::ExitOnErr(llvm::orc::EPCEHFrameRegistrar::Create(ES))));
+              ObjLinkingLayer->addPlugin(std::make_unique<llvm::orc::EHFrameRegistrationPlugin>(ES, ExitOnErr(llvm::orc::EPCEHFrameRegistrar::Create(ES))));
             
             // Register the event listener.
             //ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
