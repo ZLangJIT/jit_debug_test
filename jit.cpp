@@ -128,16 +128,16 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
         // ObjLinkingLayer->addPlugin(ExitOnErr(llvm::orc::GDBJITDebugInfoRegistrationPlugin::Create(ES, JD, TM->getTargetTripl));
         
 #ifndef _COMPILER_ASAN_ENABLED_
-    else if (TT.isOSBinFormatELF())
+    else
         //EPCDebugObjectRegistrar doesn't take a JITDylib, so we have to directly provide the call address
         ObjLinkingLayer->addPlugin(std::make_unique<llvm::orc::DebugObjectManagerPlugin>(ES, std::make_unique<llvm::orc::EPCDebugObjectRegistrar>(ES, llvm::orc::ExecutorAddr::fromPtr(&llvm_orc_registerJITLoaderGDBWrapper))));
 #endif
             
             // Register the event listener.
-            //ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
+            ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
             
             // Make sure the debug info sections aren't stripped.
-            //ObjLinkingLayer->setProcessAllSections(true);
+            ObjLinkingLayer->setProcessAllSections(true);
 
             llvm::outs() << "JIT ObjLinkingLayer created.\n";
             
