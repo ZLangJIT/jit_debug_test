@@ -25,7 +25,7 @@
 #include <llvm/Support/SourceMgr.h>
 #include <llvm/Support/TargetSelect.h>
 
-#include "jit.h
+#include "jit.h"
 #include <stdio.h>
 
 llvm::ExitOnError ExitOnErr;
