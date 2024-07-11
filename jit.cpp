@@ -79,6 +79,8 @@ extern "C" {
 extern struct jit_descriptor __jit_debug_descriptor;
 extern void __jit_debug_register_code();
 
+extern llvm::orc::shared::CWrapperFunctionResult llvm_orc_registerJITLoaderGDBWrapper(const char *Data, size_t Size);
+extern llvm::orc::shared::CWrapperFunctionResult llvm_orc_registerJITLoaderGDBAllocAction(const char *Data, size_t Size);
 }
 
 LLVM_ATTRIBUTE_USED void linkComponents() {
@@ -117,7 +119,16 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
             
             auto ObjLinkingLayer = std::make_unique<llvm::orc::ObjectLinkingLayer>(ES, EPC->getMemMgr());
             
-              ObjLinkingLayer->addPlugin(std::make_unique<llvm::orc::EHFrameRegistrationPlugin>(ES, ExitOnErr(llvm::orc::EPCEHFrameRegistrar::Create(ES))));
+            ObjLinkingLayer->addPlugin(std::make_unique<llvm::orc::EHFrameRegistrationPlugin>(ES, ExitOnErr(llvm::orc::EPCEHFrameRegistrar::Create(ES))));
+            
+    if (TT.isOSBinFormatMachO())
+        ObjLinkingLayer->addPlugin(ExitOnErr(llvm::orc::GDBJITDebugInfoRegistrationPlugin::Create(ES, JD, TM->getTargetTripl));
+        
+#ifndef _COMPILER_ASAN_ENABLED_
+    else if (TT.isOSBinFormatELF())
+        //EPCDebugObjectRegistrar doesn't take a JITDylib, so we have to directly provide the call address
+        ObjLinkingLayer.addPlugin(std::make_unique<llvm::orc::DebugObjectManagerPlugin>(ES, std::make_unique<llvm::orc::EPCDebugObjectRegistrar>(ES, llvm::orc::ExecutorAddr::fromPtr(&llvm_orc_registerJITLoaderGDBWrapper))));
+#endif
             
             // Register the event listener.
             //ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
