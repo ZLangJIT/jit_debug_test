@@ -20,6 +20,9 @@
 #include <llvm/ExecutionEngine/Orc/DebugObjectManagerPlugin.h>
 #include <llvm/ExecutionEngine/Orc/Debugging/DebuggerSupportPlugin.h>
 
+#include <llvm/ExecutionEngine/Orc/EPCEHFrameRegistrar.h>
+#include <llvm/ExecutionEngine/Orc/TargetProcess/RegisterEHFrames.h>
+
 #include <llvm/IRReader/IRReader.h>
 
 #include <llvm/MC/TargetRegistry.h>
@@ -117,6 +120,8 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
             auto EPC = ExitOnErr(llvm::orc::SelfExecutorProcessControl::Create(std::make_shared<llvm::orc::SymbolStringPool>()));
             
             auto ObjLinkingLayer = std::make_unique<llvm::orc::ObjectLinkingLayer>(ES, EPC->getMemMgr());
+            
+              ObjectLinkingLayer->addPlugin(std::make_unique<llvm::orc::EHFrameRegistrationPlugin>(ES, llvm::ExitOnErr(llvm::orc::EPCEHFrameRegistrar::Create(ES))));
             
             // Register the event listener.
             //ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
