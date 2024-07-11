@@ -119,11 +119,9 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit() {
         })
         .create());
         if (auto E = llvm::orc::enableDebuggerSupport(*jit)) {
-          llvm::SMDiagnostic Err;
-          Err.print("JIT failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.", llvm::errs());
+          llvm::errs() << "JIT failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.\nError: " << E << "\n";
         }
-        llvm::SMDiagnostic Err;
-        Err.print("JIT Initialized.", llvm::errs());
+        llvm::outs() << "JIT Initialized.\n";
         return jit;
 }
 
@@ -138,7 +136,7 @@ void JIT::add_IR_module(llvm::StringRef file_name) {
     llvm::SMDiagnostic Err;
     std::unique_ptr<llvm::Module> M = llvm::parseIRFile(file_name, Err, *Ctx);
     if (!M) {
-        Err.print("JIT IR Read error", llvm::errs());
+        llvm::errs() << "JIT IR Read error.\n";
         return;
     }
     
@@ -162,7 +160,7 @@ void JIT::add_IR_module(llvm::StringRef file_name) {
     auto expected = JTMB.createTargetMachine();
     
     if (!expected) {
-      Err.print("JIT IR createTargetMachine error", llvm::errs());
+        llvm::errs() << "JIT IR createTargetMachine error.\n";
         return;
     }
     
