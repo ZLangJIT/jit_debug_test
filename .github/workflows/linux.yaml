@@ -205,7 +205,7 @@ jobs:
         run: |
           set -x
           clang-18 -c jit_code.c -o jit_code.o -O0 -g3
-          lldb -s j.lldb --source-on-crash j.lldberr llvm-jitlink -- jit_code.o --entry=j --debugger-support
+          lldb -s j.lldb --source-on-crash j.lldberr $(which llvm-jitlink) -- jit_code.o --entry=j --debugger-support
       
       - name: test
         run: |
