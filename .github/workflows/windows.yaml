@@ -202,6 +202,13 @@ jobs:
           ls -lh ROOTFS_DEBUG
           ls -lh ROOTFS_DEBUG/bin
           
+      - name: test jitlink
+        run: |
+          export PATH="$(pwd)/llvm-18/bin:$PATH"
+          set -x
+          clang -c jit_code.c -o jit_code.o -O0 -g3
+          lldb -s j.lldb --source-on-crash j.lldberr llvm-jitlink -- jit_code.o --entry=j --debugger-support
+          
       - name: test
         run: |
           export PATH="$(pwd)/llvm-18/bin:$PATH"
