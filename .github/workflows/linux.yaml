@@ -169,7 +169,7 @@ jobs:
         run: |
           sudo apk update
           sudo apk upgrade
-          sudo apk add bash git lldb lldb-dev clang18 clang18-dev clang18-static llvm18 llvm18-dev llvm18-static llvm18-gtest cmake make libxml2 libxml2-dev libxml2-static curl
+          sudo apk add grep bash git lldb lldb-dev clang18 clang18-dev clang18-static llvm18 llvm18-dev llvm18-static llvm18-gtest cmake make libxml2 libxml2-dev libxml2-static curl
           
       - name: check if split program is cached
         run: |
@@ -204,6 +204,11 @@ jobs:
       - name: test jitlink
         run: |
           set -x
+          file /usr/lib/llvm18/bin/llvm-jitlink || true
+          ldd /usr/lib/llvm18/bin/llvm-jitlink || true
+          llvm-nm /usr/lib/libLLVM.so.18.1 -D | grep --color=always -i llvm_orc || true
+          llvm-nm /usr/lib/llvm18/bin/llvm-jitlink -D | grep --color=always -i llvm_orc || true
+          llvm-nm /usr/lib/llvm18/lib/libLLVM.so.18.1 -D | grep --color=always -i llvm_orc || true
           clang-18 -c jit_code.c -o jit_code.o -O0 -g3
           lldb -s j.lldb --source-on-crash j.lldberr /usr/lib/llvm18/bin/llvm-jitlink -- jit_code.o --entry=j --debugger-support
       
