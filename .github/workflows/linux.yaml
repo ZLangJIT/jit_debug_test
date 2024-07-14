@@ -169,7 +169,7 @@ jobs:
         run: |
           sudo apk update
           sudo apk upgrade
-          sudo apk add file grep bash git lldb lldb-dev clang18 clang18-dev clang18-static llvm18 llvm18-dev llvm18-static llvm18-gtest cmake make libxml2 libxml2-dev libxml2-static curl
+          sudo apk add file grep bash git lldb lldb-dev clang18 clang18-dev clang18-static clang18-extra-tools llvm18 llvm18-dev llvm18-static llvm18-gtest llvm18-linker-tools llvm18-test-utils cmake make libxml2 libxml2-dev libxml2-static curl
           
       - name: check if split program is cached
         run: |
