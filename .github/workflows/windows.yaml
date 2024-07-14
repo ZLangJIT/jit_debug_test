@@ -206,9 +206,9 @@ jobs:
         run: |
           export PATH="$(pwd)/llvm-18/bin:$PATH"
           set -x
-          file llvm-18/bin/llvm-jitlink || true
-          ldd llvm-18/bin/llvm-jitlink || true
-          llvm-nm llvm-18/bin/llvm-jitlink -D | grep --color=always -i llvm_orc || true
+          file llvm-18/bin/llvm-jitlink.exe || true
+          ldd llvm-18/bin/llvm-jitlink.exe || true
+          llvm-nm llvm-18/bin/llvm-jitlink.exe -D | grep --color=always -i llvm_orc || true
           llvm-nm llvm-18/lib/libLLVM.dll -D | grep --color=always -i llvm_orc || true
           clang -c jit_code.c -o jit_code.o -O0 -g3 -Xclang -triple -Xclang "x86_64-pc-windows-elf"
           lldb -s j.lldb --source-on-crash j.lldberr llvm-jitlink -- jit_code.o --entry=j --debugger-support -no-process-syms=true
