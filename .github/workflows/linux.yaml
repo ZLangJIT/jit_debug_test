@@ -169,7 +169,7 @@ jobs:
         run: |
           sudo apk update
           sudo apk upgrade
-          sudo apk add grep bash git lldb lldb-dev clang18 clang18-dev clang18-static llvm18 llvm18-dev llvm18-static llvm18-gtest cmake make libxml2 libxml2-dev libxml2-static curl
+          sudo apk add file grep bash git lldb lldb-dev clang18 clang18-dev clang18-static llvm18 llvm18-dev llvm18-static llvm18-gtest cmake make libxml2 libxml2-dev libxml2-static curl
           
       - name: check if split program is cached
         run: |
@@ -178,9 +178,9 @@ jobs:
           
       - name: list libs
         run: |
-          set -v
-          ls /lib
-          ls /usr/lib
+          set -x
+          ls -l /usr/lib/llvm18/bin || true
+          ls -l /usr/lib/llvm18/lib || true
           
       - name: cmake build - Debug - Generate
         run: |
