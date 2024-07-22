@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #if _WIN32
-
+#include <windows.h>
 #include <libloaderapi.h>
 
 #define ps(x) \
