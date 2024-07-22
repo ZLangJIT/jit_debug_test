@@ -57,33 +57,9 @@ JIT::main_llvm_init::main_llvm_init(int argc, const char *argv[]) {
     ExitOnErr.setBanner(std::string(argv[0]) + ": ");
 }
 
-// https://github.com/NVIDIA/warp/blob/main/warp/native/clang/clang.cpp
-
-#if defined (_WIN32)
-	// Windows defaults to using the COFF binary format (aka. "msvc" in the target triple).
-	// Override it to use the ELF format to support DWARF debug info, but keep using the
-	// Microsoft calling convention (see also https://llvm.org/docs/DebuggingJITedCode.html).
-	#define target_triple "x86_64-pc-windows-elf"
-#else
-	#define target_triple LLVM_DEFAULT_TARGET_TRIPLE
-#endif
-
-extern "C" {
-
-// GDB and LLDB support debugging of JIT-compiled code by observing calls to __jit_debug_register_code()
-// by putting a breakpoint on it, and retrieving the debug info through __jit_debug_descriptor.
-// On Linux it suffices for these symbols not to be stripped out, while for Windows a .pdb has to contain
-// their information. LLVM defines them, but we don't want a huge .pdb with all LLVM source code's debug
-// info. By forward-declaring them here it suffices to compile this file with /Zi.
-
-extern struct jit_descriptor __jit_debug_descriptor;
-extern void __jit_debug_register_code();
-
-}
-
 std::unique_ptr<llvm::orc::LLJIT> build_jit() {
     
-    auto JTMB = llvm::orc::JITTargetMachineBuilder(llvm::Triple(target_triple));
+    auto JTMB = llvm::orc::JITTargetMachineBuilder(llvm::Triple(jit_target_triple));
     
     // Retrieve host CPU name and sub-target features and add them to builder.
     // codegen opt level are kept to default values.

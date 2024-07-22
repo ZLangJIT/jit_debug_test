@@ -3,24 +3,15 @@
 #define STR_(x) #x
 #define STR(x) STR_(x)
 
-#if defined (_WIN32)
-	// Windows defaults to using the COFF binary format (aka. "msvc" in the target triple).
-	// Override it to use the ELF format to support DWARF debug info, but keep using the
-	// Microsoft calling convention (see also https://llvm.org/docs/DebuggingJITedCode.html).
-	#define target_triple "x86_64-pc-windows-elf"
-#else
-	#define target_triple LLVM_DEFAULT_TARGET_TRIPLE
-#endif
-
 int main(int argc, char *argv[]) {
 
     JIT::main_llvm_init main_init(argc, const_cast<const char**>(argv));
     
     JIT jit;
     
-    llvm::outs() << "invoking [ " STR(CLANG_EXE) " jit_code.c -emit-llvm -O0 -g3 -Xclang -triple -Xclang " STR(target_triple) " -S -o tmp.ll" " ]\n";
+    llvm::outs() << "invoking [ " STR(CLANG_EXE) " jit_code.c -emit-llvm -O0 -g3 -Xclang -triple -Xclang " STR(jit_target_triple) " -S -o tmp.ll" " ]\n";
     
-    system(STR(CLANG_EXE) " jit_code.c -emit-llvm -O0 -g3 -Xclang -triple -Xclang " STR(target_triple) " -S -o tmp.ll");
+    system(STR(CLANG_EXE) " jit_code.c -emit-llvm -O0 -g3 -Xclang -triple -Xclang " STR(jit_target_triple) " -S -o tmp.ll");
     
     jit.add_IR_module("tmp.ll");
     
