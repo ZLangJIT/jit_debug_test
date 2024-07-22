@@ -202,6 +202,13 @@ jobs:
           ls -lh ROOTFS_DEBUG
           ls -lh ROOTFS_DEBUG/bin
           
+      - name: test symbol exports
+        run: |
+          export PATH="$(pwd)/llvm-18/bin:$PATH"
+          set -x
+          clang symbol.c -o symbol -O0 -g3 -Xclang -triple -Xclang "x86_64-pc-windows-elf" -l Kernel32
+          lldb -s j.lldb --source-on-crash j.lldberr ./symbol
+          
       - name: test jitlink
         run: |
           export PATH="$(pwd)/llvm-18/bin:$PATH"
