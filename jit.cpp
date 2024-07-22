@@ -58,7 +58,7 @@ JIT::main_llvm_init::main_llvm_init(int argc, const char *argv[]) {
 }
 
 std::unique_ptr<llvm::orc::LLJIT> build_jit(bool jitlink) {
-    
+  
     auto JTMB = llvm::orc::JITTargetMachineBuilder(llvm::Triple(jit_target_triple));
     
     // Retrieve host CPU name and sub-target features and add them to builder.

@@ -19,6 +19,22 @@
 	#define JIT_DLL_EXPORT
 #endif
 
+#if _WIN32
+#include <stdio.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <libloaderapi.h>
+
+#define jit_ps(x) \
+  printf( \
+    "symbol address for %s is %p\n", \
+    #x, GetProcAddress(GetModuleHandle(nullptr), #x) \
+  )
+  
+#else
+#define jit_ps(x)
+#endif
+
 
 class JIT {
     std::unique_ptr<llvm::orc::LLJIT> jit;
