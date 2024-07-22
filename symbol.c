@@ -11,6 +11,8 @@
     #x, GetProcAddress(GetModuleHandle(NULL), #x) \
   )
 
+__declspec(dllexport) int main();
+
 int main() {
   ps(_start);
   ps(main);
