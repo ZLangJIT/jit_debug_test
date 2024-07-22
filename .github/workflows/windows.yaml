@@ -183,12 +183,12 @@ jobs:
           chmod +x f.sh
           ./f.sh llvm-18/bin GDB
 
-      - name: list symbols in libs llvm
+      - name: list symbols in lib llvm
         run: |
           export PATH="$(pwd)/llvm-18/bin:$PATH"
           set -x
           chmod +x f.sh
-          ./f.sh llvm-18/libs GDB
+          ./f.sh llvm-18/lib GDB
 
       - name: check if split program is cached
         run: |
