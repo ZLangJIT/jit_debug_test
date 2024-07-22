@@ -78,78 +78,81 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit(bool jitlink) {
 
     // Create an LLJIT instance and use a custom object linking layer creator to
     // register the GDBRegistrationListener with our RTDyldObjectLinkingLayer.
-    std::unique_ptr<llvm::orc::LLJIT> jit = ExitOnErr(llvm::orc::LLJITBuilder()
-        .setJITTargetMachineBuilder(std::move(JTMB))
-        .setObjectLinkingLayerCreator([&](llvm::orc::ExecutionSession &ES, const llvm::Triple &TT) {
+    
+    auto builder = llvm::orc::LLJITBuilder();
+    builder.setJITTargetMachineBuilder(std::move(JTMB));
+    if (jitlink) {
+      builder.setObjectLinkingLayerCreator(
+        [&](llvm::orc::ExecutionSession &ES, const llvm::Triple &TT
+        ) {
+          auto EPC = ExitOnErr(llvm::orc::SelfExecutorProcessControl::Create(std::make_shared<llvm::orc::SymbolStringPool>()));
           
-            if (jitlink) {
-              // use JitLink
-              
-              auto EPC = ExitOnErr(llvm::orc::SelfExecutorProcessControl::Create(std::make_shared<llvm::orc::SymbolStringPool>()));
-              
-              auto ObjLinkingLayer = std::make_unique<llvm::orc::ObjectLinkingLayer>(ES, EPC->getMemMgr());
-              
-              ObjLinkingLayer->addPlugin(std::make_unique<llvm::orc::EHFrameRegistrationPlugin>(ES, ExitOnErr(llvm::orc::EPCEHFrameRegistrar::Create(ES))));
-              
-              if (TT.isOSBinFormatMachO()) {
-                llvm::outs() << "JIT ObjLinkingLayer Debugging Information may not work on darwin.\n";
-                // ObjLinkingLayer->addPlugin(ExitOnErr(llvm::orc::GDBJITDebugInfoRegistrationPlugin::Create(ES, JD, TM->getTargetTripl));
-              }
+          auto ObjLinkingLayer = std::make_unique<llvm::orc::ObjectLinkingLayer>(ES, EPC->getMemMgr());
+          
+          ObjLinkingLayer->addPlugin(std::make_unique<llvm::orc::EHFrameRegistrationPlugin>(ES, ExitOnErr(llvm::orc::EPCEHFrameRegistrar::Create(ES))));
+          
+          if (TT.isOSBinFormatMachO()) {
+            llvm::outs() << "JIT JitLink ObjLinkingLayer Debugging Information may not work on darwin.\n";
+            // ObjLinkingLayer->addPlugin(ExitOnErr(llvm::orc::GDBJITDebugInfoRegistrationPlugin::Create(ES, JD, TM->getTargetTripl));
+          }
 #ifndef _COMPILER_ASAN_ENABLED_
-              else {
-                // EPCDebugObjectRegistrar doesn't take a JITDylib, so we have to directly provide the call address
-                ObjLinkingLayer->addPlugin(std::make_unique<llvm::orc::DebugObjectManagerPlugin>(ES, std::make_unique<llvm::orc::EPCDebugObjectRegistrar>(ES, llvm::orc::ExecutorAddr::fromPtr(&llvm_orc_registerJITLoaderGDBWrapper))));
-              }
+          else {
+            // EPCDebugObjectRegistrar doesn't take a JITDylib, so we have to directly provide the call address
+            ObjLinkingLayer->addPlugin(std::make_unique<llvm::orc::DebugObjectManagerPlugin>(ES, std::make_unique<llvm::orc::EPCDebugObjectRegistrar>(ES, llvm::orc::ExecutorAddr::fromPtr(&llvm_orc_registerJITLoaderGDBWrapper))));
+          }
 #endif
 
-              // Register the event listener.
-              //ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
-  
-              // Make sure the debug info sections aren't stripped.
-              //ObjLinkingLayer->setProcessAllSections(true);
-  
-              llvm::outs() << "JIT JitLink ObjectLinkingLayer created.\n";
-              
-              return ObjLinkingLayer;
-              
-            } else {
-              // use RTDyldObjectLinkingLayer
+          // Register the event listener.
+          //ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
+
+          // Make sure the debug info sections aren't stripped.
+          //ObjLinkingLayer->setProcessAllSections(true);
+
+          llvm::outs() << "JIT JitLink ObjectLinkingLayer created.\n";
           
-              auto GetMemMgr = []() {
-                  llvm::outs() << "JIT SectionMemoryManager created.\n";
-                  return std::make_unique<llvm::SectionMemoryManager>();
-              };
-              auto ObjLinkingLayer = std::make_unique<llvm::orc::RTDyldObjectLinkingLayer>(ES, std::move(GetMemMgr));
-  
-              // Register the event listener.
-              ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
-  
-              // Make sure the debug info sections aren't stripped.
-              ObjLinkingLayer->setProcessAllSections(true);
-  
-              llvm::outs() << "JIT RTDyldObjectLinkingLayer created.\n";
-              
-              return ObjLinkingLayer;
-              
-            }
-        })
-        .setPrePlatformSetup([](llvm::orc::LLJIT &J) {
-            if (jitlink) {
-                // Try to enable debugging of JIT'd code (only works with JITLink for
-                // ELF and MachO).
-                if (auto E = llvm::orc::enableDebuggerSupport(J)) {
-                    llvm::errs() << "JIT failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.\nError: " << E << "\n";
-                } else {
-                    llvm::outs() << "JIT JitLink debugger support enabled.\n";
-                }
-            }
-            return llvm::Error::success();
-        })
-        .create());
+          return ObjLinkingLayer;
+        }
+      );
+      builder.setPrePlatformSetup(
+        [](
+          llvm::orc::LLJIT &J
+        ) {
+          // Try to enable debugging of JIT'd code (only works with JITLink for
+          // ELF and MachO).
+          if (auto E = llvm::orc::enableDebuggerSupport(J)) {
+            llvm::errs() << "JIT failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.\nError: " << E << "\n";
+          } else {
+            llvm::outs() << "JIT JitLink debugger support enabled.\n";
+          }
+          return llvm::Error::success();
+        }
+      );
+    } else {
+      builder.setObjectLinkingLayerCreator(
+        [&](llvm::orc::ExecutionSession &ES, const llvm::Triple &TT
+      ) {
+        auto GetMemMgr = []() {
+            return std::make_unique<llvm::SectionMemoryManager>();
+        };
+        auto ObjLinkingLayer = std::make_unique<llvm::orc::RTDyldObjectLinkingLayer>(ES, std::move(GetMemMgr));
+
+        // Register the event listener.
+        ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
+
+        // Make sure the debug info sections aren't stripped.
+        ObjLinkingLayer->setProcessAllSections(true);
+
+        llvm::outs() << "JIT RTDyldObjectLinkingLayer created.\n";
         
-        llvm::outs() << "JIT created.\n";
-        
-        return jit;
+        return ObjLinkingLayer;
+      });
+    }
+    
+    auto jit = ExitOnErr(builder.create());
+    
+    llvm::outs() << "JIT created.\n";
+    
+    return jit;
 }
 
 JIT::JIT() : jit(build_jit(false)) {}
