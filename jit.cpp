@@ -61,6 +61,7 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit(bool jitlink) {
   
     llvm::outs() << "JIT creating ...\n";
   
+    jit_ps(main);
     jit_ps(__jit_debug_descriptor);
     jit_ps(__jit_debug_register_code);
     jit_ps(llvm_orc_registerJITLoaderGDBWrapper);

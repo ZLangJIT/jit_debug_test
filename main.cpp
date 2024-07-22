@@ -29,6 +29,8 @@ llvm_orc_registerJITLoaderGDBAllocAction(const char *Data, size_t Size);
 #define STR_(x) #x
 #define STR(x) STR_(x)
 
+extern "C" JIT_DLL_EXPORT int main(int argc, char *argv[]);
+
 int main(int argc, char *argv[]) {
 
     JIT::main_llvm_init main_init(argc, const_cast<const char**>(argv));
