@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 
     JIT::main_llvm_init main_init(argc, const_cast<const char**>(argv));
     
-    JIT jit;
+    JIT jit = JIT(true);
     
     llvm::outs() << "invoking [ " STR(CLANG_EXE) " jit_code.c -emit-llvm -O0 -g3 -Xclang -triple -Xclang " STR(jit_target_triple) " -S -o tmp.ll" " ]\n";
     

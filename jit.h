@@ -26,6 +26,7 @@ class JIT {
     public:
 
     JIT();
+    JIT(bool jitlink);
 
     struct main_llvm_init final {
         std::unique_ptr<llvm::InitLLVM> X;
