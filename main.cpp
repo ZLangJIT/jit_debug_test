@@ -4,8 +4,6 @@
 #include <llvm/ExecutionEngine/Orc/Shared/WrapperFunctionUtils.h>
 #endif
 
-extern "C" {
-
 // GDB and LLDB support debugging of JIT-compiled code by observing calls to __jit_debug_register_code()
 // by putting a breakpoint on it, and retrieving the debug info through __jit_debug_descriptor.
 // On Linux it suffices for these symbols not to be stripped out, while for Windows a .pdb has to contain
@@ -14,24 +12,22 @@ extern "C" {
 
 // JIT_DLL_EXPORT requires complete types, no forward-declaring
 
-struct jit_descriptor;
-struct jit_descriptor __jit_debug_descriptor;
+extern "C" struct jit_descriptor;
+extern "C" struct jit_descriptor __jit_debug_descriptor;
 
-JIT_DLL_EXPORT void __jit_debug_register_code();
+extern "C" JIT_DLL_EXPORT void __jit_debug_register_code();
 
 #ifdef _WIN32
 
-JIT_DLL_EXPORT llvm::orc::shared::CWrapperFunctionResult
+extern "C" JIT_DLL_EXPORT llvm::orc::shared::CWrapperFunctionResult
 llvm_orc_registerJITLoaderGDBWrapper(const char *Data, uint64_t Size);
 
-JIT_DLL_EXPORT llvm::orc::shared::CWrapperFunctionResult
+extern "C" JIT_DLL_EXPORT llvm::orc::shared::CWrapperFunctionResult
 llvm_orc_registerJITLoaderGDBAllocAction(const char *Data, size_t Size);
 
 #endif
 
-JIT_DLL_EXPORT int main(int argc, char *argv[]);
-
-}
+extern "C" JIT_DLL_EXPORT int main(int argc, char *argv[]);
 
 #define STR_(x) #x
 #define STR(x) STR_(x)
