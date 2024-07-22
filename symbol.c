@@ -11,11 +11,8 @@
     #x, GetProcAddress(GetModuleHandle(NULL), #x) \
   )
 
-#else
-#error "unsupported platform"
-#endif
-
 int main() {
+  ps(_start);
   ps(main);
   ps(_main);
   ps(__main);
@@ -24,3 +21,7 @@ int main() {
   ps(llvm_orc_registerJITLoaderGDBWrapper);
   return 0;
 }
+
+#else
+#error "unsupported platform"
+#endif
