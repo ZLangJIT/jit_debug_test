@@ -12,7 +12,7 @@ extern "C" {
 // their information. LLVM defines them, but we don't want a huge .pdb with all LLVM source code's debug
 // info. By forward-declaring them here it suffices to compile this file with /Zi.
 
-JIT_DLL_EXPORT struct jit_descriptor;
+struct JIT_DLL_EXPORT jit_descriptor;
 
 JIT_DLL_EXPORT struct jit_descriptor __jit_debug_descriptor;
 
