@@ -176,6 +176,20 @@ jobs:
           ls -l llvm-18/bin -h
           ls -l llvm-18/lib -h
 
+      - name: list symbols in bin llvm
+        run: |
+          export PATH="$(pwd)/llvm-18/bin:$PATH"
+          set -x
+          chmod +x f.sh
+          ./f.sh llvm-18/bin GDB
+
+      - name: list symbols in libs llvm
+        run: |
+          export PATH="$(pwd)/llvm-18/bin:$PATH"
+          set -x
+          chmod +x f.sh
+          ./f.sh llvm-18/libs GDB
+
       - name: check if split program is cached
         run: |
           chmod +x ./try_get_release.sh
@@ -186,7 +200,7 @@ jobs:
           mkdir BUILD_DEBUG
           mkdir ROOTFS_DEBUG
           export PATH="$(pwd)/llvm-18/bin:$PATH"
-          cmake -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL -DCMAKE_PREFIX_PATH="$(pwd)/llvm-18/lib/cmake" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0 -DLIBXML_STATIC -D_ITERATOR_DEBUG_LEVEL=0 -DCLANG_EXE=clang -DCLANG_CPP_EXE=clang++" -DCMAKE_CXX_FLAGS="-g3 -O0 -DLIBXML_STATIC -D_ITERATOR_DEBUG_LEVEL=0 -DCLANG_EXE=clang -DCLANG_CPP_EXE=clang++" -DLIBXML2_INCLUDE_DIR="$(pwd)/win32-libxml2/include" -DLIBXML2_LIBRARY="$(pwd)/win32-libxml2/lib/libxml2.lib" -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG -DCMAKE_EXE_LINKER_FLAGS="-Wl,--export-dynamic-symbol=llvm_orc_registerJITLoaderGDBWrapper -Wl,--export-dynamic-symbol=llvm_orc_registerEHFrameSectionWrapper -Wl,--export-dynamic-symbol=llvm_orc_deregisterEHFrameSectionWrapper"
+          cmake -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDLL -DCMAKE_PREFIX_PATH="$(pwd)/llvm-18/lib/cmake" -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_FLAGS="-g3 -O0 -DLIBXML_STATIC -D_ITERATOR_DEBUG_LEVEL=0 -DCLANG_EXE=clang -DCLANG_CPP_EXE=clang++" -DCMAKE_CXX_FLAGS="-g3 -O0 -DLIBXML_STATIC -D_ITERATOR_DEBUG_LEVEL=0 -DCLANG_EXE=clang -DCLANG_CPP_EXE=clang++" -DLIBXML2_INCLUDE_DIR="$(pwd)/win32-libxml2/include" -DLIBXML2_LIBRARY="$(pwd)/win32-libxml2/lib/libxml2.lib" -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG
 
       - name: cmake build - Debug - Build
         run: |

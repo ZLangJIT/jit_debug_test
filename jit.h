@@ -11,11 +11,14 @@
 	// Override it to use the ELF format to support DWARF debug info, but keep using the
 	// Microsoft calling convention (see also https://llvm.org/docs/DebuggingJITedCode.html).
 	#define jit_target_triple "x86_64-pc-windows-elf"
-	
+#else
+	#define jit_target_triple LLVM_DEFAULT_TARGET_TRIPLE
+#endif
+
+#ifdef _WIN32
 	// symbols must be explicitly exported as dllexport in windows
 	#define JIT_DLL_EXPORT __declspec(dllexport)
 #else
-	#define jit_target_triple LLVM_DEFAULT_TARGET_TRIPLE
 	#define JIT_DLL_EXPORT
 #endif
 
@@ -30,7 +33,7 @@
     "symbol address for %s is %p\n", \
     #x, GetProcAddress(GetModuleHandle(nullptr), #x) \
   )
-  
+
 #else
 #define jit_ps(x)
 #endif
