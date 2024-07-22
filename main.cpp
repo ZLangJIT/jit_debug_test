@@ -12,24 +12,29 @@ extern "C" {
 // their information. LLVM defines them, but we don't want a huge .pdb with all LLVM source code's debug
 // info. By forward-declaring them here it suffices to compile this file with /Zi.
 
-struct jit_descriptor;
+JIT_DLL_EXPORT struct jit_descriptor;
 
-extern struct jit_descriptor __jit_debug_descriptor;
-extern JIT_DLL_EXPORT void __jit_debug_register_code();
+JIT_DLL_EXPORT struct jit_descriptor __jit_debug_descriptor;
+
+JIT_DLL_EXPORT void __jit_debug_register_code();
 
 #ifdef _WIN32
-extern JIT_DLL_EXPORT llvm::orc::shared::CWrapperFunctionResult
+
+JIT_DLL_EXPORT llvm::orc::shared::CWrapperFunctionResult
 llvm_orc_registerJITLoaderGDBWrapper(const char *Data, uint64_t Size);
-extern JIT_DLL_EXPORT llvm::orc::shared::CWrapperFunctionResult
+
+JIT_DLL_EXPORT llvm::orc::shared::CWrapperFunctionResult
 llvm_orc_registerJITLoaderGDBAllocAction(const char *Data, size_t Size);
+
 #endif
+
+JIT_DLL_EXPORT int main(int argc, char *argv[]);
 
 }
 
 #define STR_(x) #x
 #define STR(x) STR_(x)
 
-extern "C" JIT_DLL_EXPORT int main(int argc, char *argv[]);
 
 int main(int argc, char *argv[]) {
 
