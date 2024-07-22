@@ -1,13 +1,13 @@
-#include <stdio.h>
 
 #if _WIN32
+#include <stdio.h>
 #include <windows.h>
 #include <libloaderapi.h>
 
 #define ps(x) \
   printf( \
     "symbol address for %s is %p\n", \
-    #x, GetProcAddress(GetModuleHandle(NULL)), #x \
+    #x, GetProcAddress(GetModuleHandle(NULL), #x) \
   )
 
 #else
