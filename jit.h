@@ -1,8 +1,5 @@
 #include <llvm/ExecutionEngine/Orc/LLJIT.h>
 #include <llvm/ExecutionEngine/Orc/Mangling.h>
-#ifdef _WIN32
-#include <llvm/ExecutionEngine/Orc/Shared/WrapperFunctionUtils.h>
-#endif
 #include <llvm/ExecutionEngine/Orc/ThreadSafeModule.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/InitLLVM.h>
@@ -22,25 +19,6 @@
 	#define JIT_DLL_EXPORT
 #endif
 
-extern "C" {
-
-// GDB and LLDB support debugging of JIT-compiled code by observing calls to __jit_debug_register_code()
-// by putting a breakpoint on it, and retrieving the debug info through __jit_debug_descriptor.
-// On Linux it suffices for these symbols not to be stripped out, while for Windows a .pdb has to contain
-// their information. LLVM defines them, but we don't want a huge .pdb with all LLVM source code's debug
-// info. By forward-declaring them here it suffices to compile this file with /Zi.
-
-struct jit_descriptor __jit_debug_descriptor;
-JIT_DLL_EXPORT void __jit_debug_register_code();
-
-#ifdef _WIN32
-JIT_DLL_EXPORT llvm::orc::shared::CWrapperFunctionResult
-llvm_orc_registerJITLoaderGDBWrapper(const char *Data, uint64_t Size);
-JIT_DLL_EXPORT llvm::orc::shared::CWrapperFunctionResult
-llvm_orc_registerJITLoaderGDBAllocAction(const char *Data, size_t Size);
-#endif
-
-}
 
 class JIT {
     std::unique_ptr<llvm::orc::LLJIT> jit;
