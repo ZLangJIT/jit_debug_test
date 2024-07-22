@@ -14,7 +14,7 @@ extern "C" {
 
 struct JIT_DLL_EXPORT jit_descriptor;
 
-JIT_DLL_EXPORT struct jit_descriptor __jit_debug_descriptor;
+JIT_DLL_EXPORT struct JIT_DLL_EXPORT jit_descriptor __jit_debug_descriptor;
 
 JIT_DLL_EXPORT void __jit_debug_register_code();
 
