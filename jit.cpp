@@ -121,7 +121,7 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit(bool jitlink) {
           return ObjLinkingLayer;
         }
       );
-      if (false) builder.setPrePlatformSetup(
+      builder.setPrePlatformSetup(
         [](
           llvm::orc::LLJIT &J
         ) {
