@@ -128,7 +128,7 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit(bool jitlink) {
           // Try to enable debugging of JIT'd code (only works with JITLink for
           // ELF and MachO).
           if (auto E = llvm::orc::enableDebuggerSupport(J)) {
-            llvm::errs() << "JIT failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.\nError: " << E << "\n";
+            llvm::errs() << "JIT JitLink failed to enable debugger support, Debug Information may be unavailable for JIT compiled code.\nError: " << E << "\n";
           } else {
             llvm::outs() << "JIT JitLink debugger support enabled.\n";
           }

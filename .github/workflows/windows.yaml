@@ -170,18 +170,17 @@ jobs:
       - name: list files llvm
         run: |
           set -x
-          ls -l
-          find win32-libxml2
-          ls -l llvm-18 -h
-          ls -l llvm-18/bin -h
-          ls -l llvm-18/lib -h
+          ls -lhp
+          ls -lhp llvm-18
+          ls -lhp llvm-18/bin
+          ls -lhp llvm-18/lib
 
       - name: list symbols in bin llvm
         run: |
           export PATH="$(pwd)/llvm-18/bin:$PATH"
           set -x
           chmod +x f.sh
-          ./f.sh llvm-18/bin "(llvm_orc|gdb|GDB)"
+          # ./f.sh llvm-18/bin "(llvm_orc|gdb|GDB)"
 
       - name: list symbols in lib llvm
         run: |
