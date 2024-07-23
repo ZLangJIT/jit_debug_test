@@ -188,7 +188,7 @@ jobs:
           export PATH="$(pwd)/llvm-18/bin:$PATH"
           set -x
           chmod +x f.sh
-          ./f.sh llvm-18/lib "(llvm_orc|gdb|GDB)"
+          # ./f.sh llvm-18/lib "(llvm_orc|gdb|GDB)"
 
       - name: check if split program is cached
         run: |

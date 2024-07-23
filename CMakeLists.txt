@@ -15,6 +15,9 @@ add_definitions(${LLVM_DEFINITIONS_LIST})
 add_executable(jit jit.cpp main.cpp)
 
 # Link against all LLVM libraries
+
+message(STATUS "LLVM_AVAILABLE_LIBS = [ ${LLVM_AVAILABLE_LIBS} ]")
+
 target_link_libraries(jit ${LLVM_AVAILABLE_LIBS})
 
 set(INSTALL_BIN_DIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Installation directory for executables")
