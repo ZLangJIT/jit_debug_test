@@ -27,7 +27,7 @@ llvm_orc_registerJITLoaderGDBAllocAction(const char *Data, size_t Size);
 
 #endif
 
-#if true
+#if false
 //===- JITLoaderGDB.h - Register objects via GDB JIT interface -*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
