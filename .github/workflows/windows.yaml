@@ -223,6 +223,14 @@ jobs:
           clang symbol.c -o symbol -O0 -g3 -Xclang -triple -Xclang "x86_64-pc-windows-coff" -l Kernel32
           lldb -s j.lldb --source-on-crash j.lldberr ./symbol
           
+      - name: test lli
+        run: |
+          export PATH="$(pwd)/llvm-18/bin:$PATH"
+          set -x
+          lli --help || true
+          clang -fexceptions -c test_lli.c -o test_lli.bc -emit-llvm -O0 -g3 -Xclang -triple -Xclang "x86_64-pc-windows-elf"
+          lldb -s j.lldb --source-on-crash j.lldberr lli -- jit-emit-debug test_lli.bc
+          
       - name: test jitlink
         run: |
           export PATH="$(pwd)/llvm-18/bin:$PATH"
