@@ -10,7 +10,7 @@
 	// Windows defaults to using the COFF binary format (aka. "msvc" in the target triple).
 	// Override it to use the ELF format to support DWARF debug info, but keep using the
 	// Microsoft calling convention (see also https://llvm.org/docs/DebuggingJITedCode.html).
-	#define jit_target_triple "x86_64-pc-windows-elf"
+	#define jit_target_triple "x86_64-pc-windows-coff"
 #else
 	#define jit_target_triple LLVM_DEFAULT_TARGET_TRIPLE
 #endif
