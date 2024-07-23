@@ -186,7 +186,7 @@ jobs:
         run: |
           mkdir BUILD_DEBUG
           mkdir ROOTFS_DEBUG
-          llvm-config --version --assertion-mode --build-mode
+          /usr/lib/llvm18/bin/llvm-config --version --assertion-mode --build-mode
           cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=ROOTFS_DEBUG -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_C_FLAGS="-g3 -O0 -DCLANG_EXE=clang-18 -DCLANG_CPP_EXE=clang++-18" -DCMAKE_CXX_FLAGS="-g3 -O0 -DCLANG_EXE=clang-18 -DCLANG_CPP_EXE=clang++-18" -DCMAKE_COLOR_DIAGNOSTICS=ON -DCMAKE_COLOR_MAKEFILE=ON -S . -B BUILD_DEBUG -DCMAKE_EXE_LINKER_FLAGS="-Wl,--export-dynamic-symbol=llvm_orc_registerJITLoaderGDBWrapper -Wl,--export-dynamic-symbol=llvm_orc_registerEHFrameSectionWrapper -Wl,--export-dynamic-symbol=llvm_orc_deregisterEHFrameSectionWrapper"
 
       - name: cmake build - Debug - Build

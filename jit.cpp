@@ -97,7 +97,7 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit(bool jitlink) {
           
           auto ObjLinkingLayer = std::make_unique<llvm::orc::ObjectLinkingLayer>(ES, EPC->getMemMgr());
           
-          //ObjLinkingLayer->addPlugin(std::make_unique<llvm::orc::EHFrameRegistrationPlugin>(ES, ExitOnErr(llvm::orc::EPCEHFrameRegistrar::Create(ES))));
+          ObjLinkingLayer->addPlugin(std::make_unique<llvm::orc::EHFrameRegistrationPlugin>(ES, ExitOnErr(llvm::orc::EPCEHFrameRegistrar::Create(ES))));
           
           if (TT.isOSBinFormatMachO()) {
             llvm::outs() << "JIT JitLink ObjLinkingLayer Debugging Information may not work on darwin.\n";
@@ -106,7 +106,7 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit(bool jitlink) {
 #ifndef _COMPILER_ASAN_ENABLED_
           else {
             // EPCDebugObjectRegistrar doesn't take a JITDylib, so we have to directly provide the call address
-            //ObjLinkingLayer->addPlugin(std::make_unique<llvm::orc::DebugObjectManagerPlugin>(ES, std::make_unique<llvm::orc::EPCDebugObjectRegistrar>(ES, llvm::orc::ExecutorAddr::fromPtr(&llvm_orc_registerJITLoaderGDBWrapper))));
+            ObjLinkingLayer->addPlugin(std::make_unique<llvm::orc::DebugObjectManagerPlugin>(ES, std::make_unique<llvm::orc::EPCDebugObjectRegistrar>(ES, llvm::orc::ExecutorAddr::fromPtr(&llvm_orc_registerJITLoaderGDBWrapper))));
           }
 #endif
 
