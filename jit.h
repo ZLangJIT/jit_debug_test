@@ -30,7 +30,7 @@
 
 #define jit_ps(x) \
   printf( \
-    "symbol address for %s is %p\n", \
+    "&%s == 0x%p\n", \
     #x, GetProcAddress(GetModuleHandle(nullptr), #x) \
   )
 

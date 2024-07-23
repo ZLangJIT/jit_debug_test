@@ -73,6 +73,8 @@ LLVM_ATTRIBUTE_NOINLINE void __jit_debug_register_code() {
 using namespace llvm;
 using namespace llvm::orc;
 
+#define LLVM_DEBUG(x) x
+
 // Register debug object, return error message or null for success.
 static void appendJITDebugDescriptor(const char *ObjAddr, size_t Size) {
   LLVM_DEBUG({
