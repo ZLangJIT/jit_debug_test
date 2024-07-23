@@ -113,7 +113,7 @@ jobs:
 
       - name: list files
         run: |
-          ls -l
+          ls -lhp
       
       - name: upload split build directory
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -179,8 +179,8 @@ jobs:
       - name: list libs
         run: |
           set -x
-          ls -l /usr/lib/llvm18/bin || true
-          ls -l /usr/lib/llvm18/lib || true
+          ls -lhp /usr/lib/llvm18/bin || true
+          ls -lhp /usr/lib/llvm18/lib || true
           
       - name: cmake build - Debug - Generate
         run: |
@@ -196,10 +196,8 @@ jobs:
         run: |
           cmake --install BUILD_DEBUG
           find ROOTFS_DEBUG
-          ls -l ROOTFS_DEBUG
-          ls -lh ROOTFS_DEBUG
-          ls -l ROOTFS_DEBUG/bin
-          ls -lh ROOTFS_DEBUG/bin
+          ls -lhp ROOTFS_DEBUG
+          ls -lhp ROOTFS_DEBUG/bin
           
       - name: test jitlink
         run: |
@@ -227,7 +225,7 @@ jobs:
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
-          ls -l
+          ls -lhp
 
       - name: upload rootfs
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete

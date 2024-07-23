@@ -101,7 +101,7 @@ jobs:
 
       - name: list files
         run: |
-          ls -l
+          ls -lhp
       
       - name: upload split build directory
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
@@ -212,8 +212,8 @@ jobs:
           set -x
           cmake --install BUILD_DEBUG
           find ROOTFS_DEBUG
-          ls -lh ROOTFS_DEBUG
-          ls -lh ROOTFS_DEBUG/bin
+          ls -lhp ROOTFS_DEBUG
+          ls -lhp ROOTFS_DEBUG/bin
           
       - name: test symbol exports
         run: |
@@ -254,7 +254,7 @@ jobs:
       - name: list files
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
         run: |
-          ls -l
+          ls -lhp
 
       - name: upload rootfs
         if: ${{ success() && always() }} # if we cancel during the upload, wait for it to complete
