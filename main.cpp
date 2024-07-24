@@ -1,33 +1,6 @@
 #include "jit.h"
 
-#ifdef _WIN32
-#include <llvm/ExecutionEngine/Orc/Shared/WrapperFunctionUtils.h>
-#endif
-
-// GDB and LLDB support debugging of JIT-compiled code by observing calls to __jit_debug_register_code()
-// by putting a breakpoint on it, and retrieving the debug info through __jit_debug_descriptor.
-// On Linux it suffices for these symbols not to be stripped out, while for Windows a .pdb has to contain
-// their information. LLVM defines them, but we don't want a huge .pdb with all LLVM source code's debug
-// info. By forward-declaring them here it suffices to compile this file with /Zi.
-
-// JIT_DLL_EXPORT requires complete types, no forward-declaring
-
-extern "C" struct jit_descriptor;
-extern "C" struct jit_descriptor __jit_debug_descriptor;
-
-extern "C" JIT_DLL_EXPORT void __jit_debug_register_code();
-
-#ifdef _WIN32
-
-extern "C" JIT_DLL_EXPORT llvm::orc::shared::CWrapperFunctionResult
-llvm_orc_registerJITLoaderGDBWrapper(const char *Data, uint64_t Size);
-
-extern "C" JIT_DLL_EXPORT llvm::orc::shared::CWrapperFunctionResult
-llvm_orc_registerJITLoaderGDBAllocAction(const char *Data, size_t Size);
-
-#endif
-
-#if false
+#if true
 //===- JITLoaderGDB.h - Register objects via GDB JIT interface -*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License v2.0 with LLVM Exceptions.
@@ -56,12 +29,12 @@ extern "C" {
 // We put information about the JITed function in this global, which the
 // debugger reads.  Make sure to specify the version statically, because the
 // debugger checks the version before we can set it during runtime.
-struct jit_descriptor __jit_debug_descriptor = {JitDescriptorVersion, 0,
+struct JIT_DLL_EXPORT jit_descriptor __jit_debug_descriptor = {JitDescriptorVersion, 0,
                                                 nullptr, nullptr};
 
 // Debuggers that implement the GDB JIT interface put a special breakpoint in
 // this function.
-LLVM_ATTRIBUTE_NOINLINE void __jit_debug_register_code() {
+LLVM_ATTRIBUTE_NOINLINE JIT_DLL_EXPORT void __jit_debug_register_code() {
   // The noinline and the asm prevent calls to this function from being
   // optimized out.
 #if !defined(_MSC_VER)
@@ -106,7 +79,7 @@ static void appendJITDebugDescriptor(const char *ObjAddr, size_t Size) {
   __jit_debug_descriptor.action_flag = JIT_REGISTER_FN;
 }
 
-extern "C" orc::shared::CWrapperFunctionResult
+extern "C" JIT_DLL_EXPORT orc::shared::CWrapperFunctionResult
 llvm_orc_registerJITLoaderGDBAllocAction(const char *Data, size_t Size) {
   using namespace orc::shared;
   return WrapperFunction<SPSError(SPSExecutorAddrRange, bool)>::handle(
@@ -122,7 +95,7 @@ llvm_orc_registerJITLoaderGDBAllocAction(const char *Data, size_t Size) {
       .release();
 }
 
-extern "C" orc::shared::CWrapperFunctionResult
+extern "C" JIT_DLL_EXPORT orc::shared::CWrapperFunctionResult
 llvm_orc_registerJITLoaderGDBWrapper(const char *Data, uint64_t Size) {
   using namespace orc::shared;
   return WrapperFunction<SPSError(SPSExecutorAddrRange, bool)>::handle(
