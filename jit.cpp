@@ -93,6 +93,7 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit(bool jitlink) {
       builder.setObjectLinkingLayerCreator(
         [&](llvm::orc::ExecutionSession &ES, const llvm::Triple &TT
         ) {
+          llvm::outs() << "JIT JitLink ObjectLinkingLayer creating...\n";
           auto EPC = ExitOnErr(llvm::orc::SelfExecutorProcessControl::Create(std::make_shared<llvm::orc::SymbolStringPool>()));
           
           auto ObjLinkingLayer = std::make_unique<llvm::orc::ObjectLinkingLayer>(ES, EPC->getMemMgr());
@@ -102,13 +103,15 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit(bool jitlink) {
           if (TT.isOSBinFormatMachO()) {
             llvm::outs() << "JIT JitLink ObjLinkingLayer Debugging Information may not work on darwin.\n";
             // ObjLinkingLayer->addPlugin(ExitOnErr(llvm::orc::GDBJITDebugInfoRegistrationPlugin::Create(ES, JD, TM->getTargetTripl));
-          }
-#ifndef _COMPILER_ASAN_ENABLED_
-          else {
+          } else {
+#ifdef _COMPILER_ASAN_ENABLED_
+            llvm::outs() << "JIT JitLink asan enabled, not registering DebugObjectManagerPlugin.\n";
+#else
+            llvm::outs() << "JIT JitLink asan disabled, registering DebugObjectManagerPlugin.\n";
             // EPCDebugObjectRegistrar doesn't take a JITDylib, so we have to directly provide the call address
             ObjLinkingLayer->addPlugin(std::make_unique<llvm::orc::DebugObjectManagerPlugin>(ES, std::make_unique<llvm::orc::EPCDebugObjectRegistrar>(ES, llvm::orc::ExecutorAddr::fromPtr(&llvm_orc_registerJITLoaderGDBWrapper))));
-          }
 #endif
+          }
 
           // Register the event listener.
           //ObjLinkingLayer->registerJITEventListener(*llvm::JITEventListener::createGDBRegistrationListener());
@@ -139,6 +142,7 @@ std::unique_ptr<llvm::orc::LLJIT> build_jit(bool jitlink) {
       builder.setObjectLinkingLayerCreator(
         [&](llvm::orc::ExecutionSession &ES, const llvm::Triple &TT
       ) {
+        llvm::outs() << "JIT RTDyldObjectLinkingLayer creating...\n";
         auto GetMemMgr = []() {
             return std::make_unique<llvm::SectionMemoryManager>();
         };
