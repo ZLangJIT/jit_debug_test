@@ -1,5 +1,13 @@
 b j
+b __jit_debug_register_code
+b llvm::orc::DebugObjectManagerPlugin
+b llvm::orc::DebugObjectManagerPlugin::DebugObjectManagerPlugin
+b llvm_orc_registerJITLoaderGDBWrapper
 r
+bt
+c
+bt
+c
 bt
 c
 bt
