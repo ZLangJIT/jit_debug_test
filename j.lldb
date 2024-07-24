@@ -3,7 +3,31 @@ b __jit_debug_register_code
 b llvm::orc::DebugObjectManagerPlugin::DebugObjectManagerPlugin
 b llvm_orc_registerJITLoaderGDBWrapper
 b llvm::orc::enableDebuggerSupport
+b llvm::orc::DebugObjectManagerPlugin::notifyEmitted
+b llvm::orc::ObjectLinkingLayer::notifyEmitted
 r
+bt
+c
+bt
+c
+bt
+c
+bt
+c
+bt
+c
+bt
+c
+bt
+c
+bt
+c
+bt
+c
+bt
+c
+bt
+c
 bt
 c
 bt
